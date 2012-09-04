@@ -1,0 +1,13 @@
+appname: authextest
+
+session: simple
+logger: console
+log: core
+
+plugins:
+    Auth::Extensible:
+            provider: Example
+
+
+show_errors: 1
+
