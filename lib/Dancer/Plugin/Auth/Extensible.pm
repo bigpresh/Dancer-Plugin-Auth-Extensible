@@ -150,7 +150,7 @@ hook before => sub {
 
         # OK, find out what roles this user has; if they have one of the roles we're
         # looking for, they're OK
-        my $user_roles = $provider->get_user_roles($user->{username});
+        my $user_roles = auth_provider()->get_user_roles($user->{username});
 
         my %acceptable_role = map { $_ => 1 } @$roles_required;
         
