@@ -213,6 +213,17 @@ if (!$settings->{no_default_pages}) {
     };
 }
 
+# Handle logging in...
+post '/login' => sub {
+    my $provider = auth_provider();
+    if ($provider->authenticate_user(params->{username}, params->{password})) {
+        session logged_in_user => params->{username};
+        redirect params->{return_url} || '/';
+    } else {
+        vars->{login_failed}++;
+        forward '/login', { login_failed => 1 }, { method => 'GET' };
+    }
+};
 
 sub _default_permission_denied_page {
     return <<PAGE
@@ -225,12 +236,17 @@ PAGE
 }
 
 sub _default_login_page {
-    return <<PAGE
+    my $login_fail_message = vars->{login_failed}
+        ? "<p>LOGIN FAILED</p>"
+        : "";
+    return <<PAGE;
 <h1>Login Required</h1>
 
 <p>
 You need to log in to continue.
 </p>
+
+$login_fail_message
 
 <form method="post">
 Username: <input type="text" name="username">
