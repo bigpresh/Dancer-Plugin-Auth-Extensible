@@ -27,7 +27,7 @@ See for example L<Dancer::Plugin::Auth::Extensible::Provider::Database>.
     plugins:
         auth:
             extensible:
-                provider: Eample
+                provider: Example
 
 
 Define that a user must be logged in to access a route:
