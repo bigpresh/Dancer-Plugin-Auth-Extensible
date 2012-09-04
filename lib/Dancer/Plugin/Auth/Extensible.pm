@@ -168,8 +168,6 @@ sub get_attribs_by_type {
     my ($type, $coderef) = @_;
     return unless $coderef;
 
-    warn "Want attributes for $coderef  - " . ref $coderef;
-
     # This voodoo was originally written by an evil bad man with a big beard;
     # I simply embraced and extended it, whilst midly fearing for my life.
     # Thus, blame him, not me.
