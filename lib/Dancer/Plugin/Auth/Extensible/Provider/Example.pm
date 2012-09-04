@@ -1,4 +1,4 @@
-package Dancer::Plugin::Auth::Extensible::Example;
+package Dancer::Plugin::Auth::Extensible::Provider::Example;
 
 use strict;
 
