@@ -127,17 +127,20 @@ hook before => sub {
     my $requires_login = get_attribs_by_type(
         'RequireLogin', $route_handler->code
     );
-    if (defined $requires_login && !logged_in_user) {
-        # TODO: fire hooks, print default message
-        execute_hook('login_required', $route_handler);
-        
-        # TODO: see if a response is set
-        return redirect '/login';
-    }
-
     my $roles_required = get_attribs_by_type(
         'RequireRole', $route_handler->code
     );
+    
+    if (
+        ( defined($requires_login) || defined($roles_required) )
+        && !logged_in_user
+        )
+    {
+        execute_hook('login_required', $route_handler);
+        # TODO: check if code executed by that hook set up a response
+        return redirect '/login';
+    }
+
     return unless defined $roles_required;
 
     execute_hook(
@@ -148,6 +151,24 @@ hook before => sub {
 
     # TODO: see if a response is set
     return redirect '/login/denied';
+};
+
+
+# Hook to catch an impending 404 on the login page / denied page URLs, and
+# serve the built-in default page content instead
+
+hook before_error_render => sub {
+    my $error = shift;
+    debug "Entered before_error_init hook";
+    return unless $error->code == 404;
+
+    if (request->path eq '/login') {
+        status 200;
+        return _default_login_page();
+    } elsif (request->path eq '/login/denied') {
+        status 200;
+        return _default_permission_denied_page();
+    }
 };
 
 
