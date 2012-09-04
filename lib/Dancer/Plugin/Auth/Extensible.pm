@@ -115,7 +115,7 @@ sub auth_provider {
 
     return $provider;
 }
-
+register_hook qw(login_required permission_denied);
 register_plugin versions => qw(1 2);
 
 # Hook to catch routes about to be executed, and check for attributes telling us
@@ -129,7 +129,10 @@ hook before => sub {
     );
     if (defined $requires_login && !logged_in_user) {
         # TODO: fire hooks, print default message
-        die "USER NOT LOGGED IN";
+        execute_hook('login_required', $route_handler);
+        
+        # TODO: see if a response is set
+        return redirect '/login';
     }
 
     my $roles_required = get_attribs_by_type(
@@ -137,8 +140,14 @@ hook before => sub {
     );
     return unless defined $roles_required;
 
-    # TODO: ensure the user has a suitable role
-    die "USER NEEDS ONE OF: " . join ',', @$roles_required;
+    execute_hook(
+        'permission_denied',
+        $route_handler,
+        $roles_required
+    );
+
+    # TODO: see if a response is set
+    return redirect '/login/denied';
 };
 
 
@@ -188,8 +197,33 @@ sub get_attribs_by_type {
 }
  
 
+sub _default_permission_denied_page {
+    return <<PAGE
+<h1>Permission Denied</h1>
 
+<p>
+Sorry, you're not allowed to access that page.
+</p>
+PAGE
+}
 
+sub _default_login_page {
+    return <<PAGE
+<h1>Login Required</h1>
+
+<p>
+You need to log in to continue.
+</p>
+
+<form method="post">
+Username: <input type="text" name="username">
+<br />
+Password: <input type="password" name="password">
+<br />
+<input type="submit" value="Login">
+</form>
+PAGE
+}
 =head1 AUTHOR
 
 David Precious, C<< <davidp at preshweb.co.uk> >>
