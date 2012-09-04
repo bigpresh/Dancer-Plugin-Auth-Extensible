@@ -144,13 +144,14 @@ hook before => sub {
 
         return unless defined $roles_required;
 
-
         # OK, find out what roles this user has; if they have one of the roles we're
         # looking for, they're OK
-        my $user_roles = auth_provider()->get_user_roles($user->{username});
+        my $user_roles = auth_provider()->get_user_roles(
+            session 'logged_in_user'
+        );
 
         my %acceptable_role = map { $_ => 1 } @$roles_required;
-        
+
         for my $user_role (@$user_roles) {
             if ($acceptable_role{$user_role}) {
                 return;
