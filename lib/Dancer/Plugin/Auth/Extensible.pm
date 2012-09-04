@@ -132,26 +132,43 @@ hook before => sub {
         'RequireRole', $route_handler->code
     );
     
+    
     if (
         ( defined($requires_login) || defined($roles_required) )
         && !logged_in_user
         )
     {
-        execute_hook('login_required', $route_handler);
-        # TODO: check if code executed by that hook set up a response
-        return redirect '/login';
+        my $user = logged_in_user();
+        
+        if (!$user) {
+            execute_hook('login_required', $route_handler);
+            # TODO: check if code executed by that hook set up a response
+            return redirect '/login';
+        }
+
+        return unless defined $roles_required;
+
+        # OK, find out what roles this user has; if they have one of the roles we're
+        # looking for, they're OK
+        my $user_roles = $provider->get_user_roles($user->{username});
+
+        my %acceptable_role = map { $_ => 1 } @$roles_required;
+        
+        for my $user_role (@$user_roles) {
+            if ($acceptable_role{$user_role}) {
+                return;
+            }
+        }
+
+        execute_hook(
+            'permission_denied',
+            $route_handler,
+            $roles_required
+        );
+
+        # TODO: see if a response is set
+        return redirect '/login/denied';
     }
-
-    return unless defined $roles_required;
-
-    execute_hook(
-        'permission_denied',
-        $route_handler,
-        $roles_required
-    );
-
-    # TODO: see if a response is set
-    return redirect '/login/denied';
 };
 
 
