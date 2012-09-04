@@ -72,14 +72,49 @@ C<permission_denied> hook will fire; code using that hook can return a redirect
 or a response.  If no code does so, a default "permission denied" response will
 be issued.
 
-=cut 
+=head2 Keywords
 
+=over
 
+=item logged_in_user
+
+Returns a hashref of details of the currently logged-in user, if there is one.
+
+The details you get back will depend upon the authentication provider in use.
+
+=cut
 
 sub logged_in_user {
-    # TODO: write this
+    if (my $user = session 'logged_in_user') {
+        my $provider = auth_provider();
+        return $provider->get_user_details($user);
+    } else {
+        return;
+    }
 }
 register logged_in_user => \&logged_in_user;
+
+=back
+
+=cut
+
+
+# Loads the auth provider (if it's not already loaded) and returns the package
+# name.
+sub auth_provider {
+    my $settings = plugin_setting;
+    my $provider = $settings->{provider}
+        or die "No provider configured - consult documentation for "
+            . __PACKAGE__;
+
+    if ($provider !~ /::/) {
+        $provider = __PACKAGE__ . "::Provider::$provider";
+    }
+    Dancer::ModuleLoader->load($provider)
+        or die "Cannot load provider $provider";
+
+    return $provider;
+}
 
 register_plugin versions => qw(1 2);
 
