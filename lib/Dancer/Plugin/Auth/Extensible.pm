@@ -9,6 +9,8 @@ use Scalar::Util qw(refaddr);
 
 our $VERSION = '0.01';
 
+my $settings = plugin_setting;
+
 # We must export these to the caller to allow them to use any attributes:
 use Exporter 'import';
 our @EXPORT=qw(MODIFY_CODE_ATTRIBUTES FETCH_CODE_ATTRIBUTES);
@@ -102,7 +104,6 @@ register logged_in_user => \&logged_in_user;
 # Loads the auth provider (if it's not already loaded) and returns the package
 # name.
 sub auth_provider {
-    my $settings = plugin_setting;
     my $provider = $settings->{provider}
         or die "No provider configured - consult documentation for "
             . __PACKAGE__;
@@ -154,22 +155,6 @@ hook before => sub {
 };
 
 
-# Hook to catch an impending 404 on the login page / denied page URLs, and
-# serve the built-in default page content instead
-
-hook before_error_render => sub {
-    my $error = shift;
-    debug "Entered before_error_init hook";
-    return unless $error->code == 404;
-
-    if (request->path eq '/login') {
-        status 200;
-        return _default_login_page();
-    } elsif (request->path eq '/login/denied') {
-        status 200;
-        return _default_permission_denied_page();
-    }
-};
 
 
 # Boilerplate to support attribute setting & fetching
@@ -214,7 +199,20 @@ sub get_attribs_by_type {
         } @desired_attribs
     ];
 }
- 
+
+
+# Set up routes to serve default pages, if desired
+if (!$settings->{no_default_pages}) {
+    get '/login' => sub {
+        status 401;
+        return _default_login_page();
+    };
+    get '/login/denied' => sub {
+        status 403;
+        return _default_permission_denied_page();
+    };
+}
+
 
 sub _default_permission_denied_page {
     return <<PAGE
