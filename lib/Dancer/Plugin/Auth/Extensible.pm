@@ -133,11 +133,7 @@ hook before => sub {
     );
     
     
-    if (
-        ( defined($requires_login) || defined($roles_required) )
-        && !logged_in_user
-        )
-    {
+    if (defined($requires_login) || defined($roles_required)) {
         my $user = logged_in_user();
         
         if (!$user) {
@@ -147,6 +143,7 @@ hook before => sub {
         }
 
         return unless defined $roles_required;
+
 
         # OK, find out what roles this user has; if they have one of the roles we're
         # looking for, they're OK
