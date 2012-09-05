@@ -1,0 +1,26 @@
+
+=head1 TODO
+
+Quick and dirty todo list:
+
+=over
+
+=item Database auth provider
+
+An authentication provider using L<Dancer::Plugin::Database> to authenticate
+against a database.
+
+=item Documentation overhaul
+
+The current docs are mostly a braindump of how stuff ought to work; there's a
+lot of room for improvement.
+
+=item Test suite
+
+The module really needs some tests defined.  It can use the example auth
+provider to test against known results with no outside dependencies.
+
+=item Improve example auth provider's docs to make it clearer still how to
+create new authentication providers.
+
+
