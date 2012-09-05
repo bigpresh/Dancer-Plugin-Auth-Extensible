@@ -266,9 +266,11 @@ You need to log in to continue.
 $login_fail_message
 
 <form method="post">
-Username: <input type="text" name="username">
+<label for="username">Username:</label>
+<input type="text" name="username" id="username">
 <br />
-Password: <input type="password" name="password">
+<label for="password">Password:</label>
+<input type="password" name="password" id="password">
 <br />
 <input type="submit" value="Login">
 </form>
