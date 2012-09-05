@@ -1,55 +1,92 @@
-Dancer-Plugin-Auth-Extensible
+NAME
+    Dancer::Plugin::Auth::Extensible - extensible authentication framework
+    for Dancer apps
 
-The README is used to introduce the module and provide instructions on
-how to install the module, any machine dependencies it may have (for
-example C compilers and installed libraries) and any other information
-that should be provided before the module is installed.
+SYNOPSIS
+    Configure the plugin to use the authentication class you wish to use.
 
-A README file is required for CPAN modules since CPAN extracts the README
-file from a module distribution so that people browsing the archive
-can use it to get an idea of the module's uses. It is usually a good idea
-to provide version information here so that people can decide whether
-fixes for the module are worth downloading.
+    See for example Dancer::Plugin::Auth::Extensible::Provider::Database.
 
+        plugins:
+            auth:
+                extensible:
+                    provider: Example
 
-INSTALLATION
+    Define that a user must be logged in to access a route:
 
-To install this module, run the following commands:
+        get '/secret' => sub :RequireRole(Confidant) { tell_secrets(); };
 
-	perl Makefile.PL
-	make
-	make test
-	make install
+    Define that a user must be logged in to access a route - and find out
+    who is logged in with the `logged_in_user' keyword:
 
-SUPPORT AND DOCUMENTATION
+        get '/users' => sub :RequireLogin {
+            my $user = logged_in_user;
+            return "Hi there, $user->{username}";
+        };
 
-After installing, you can find documentation for this module with the
-perldoc command.
+Controlling access to routes
+    Subroutine attributes are used to indicate that a route requires a
+    login, or a specific role.
 
-    perldoc Dancer::Plugin::Auth::Extensible
+    Multiple roles can easily be provided as a space-separated list, for
+    example:
 
-You can also look for information at:
+        get '/user/:user_id' => sub :RequireRole(Admin TeamLeader) {
+            ...
+        };
 
-    RT, CPAN's request tracker
-        http://rt.cpan.org/NoAuth/Bugs.html?Dist=Dancer-Plugin-Auth-Extensible
+    If you only care that the user be logged in, use the RequireLogin
+    attribute instead:
 
-    AnnoCPAN, Annotated CPAN documentation
-        http://annocpan.org/dist/Dancer-Plugin-Auth-Extensible
+        get '/dashboard' => sub :RequireLogin { .... };
 
-    CPAN Ratings
-        http://cpanratings.perl.org/d/Dancer-Plugin-Auth-Extensible
+    If the user is not logged in, the `login_needed' hook will fire; code
+    using that hook can return a redirect to a login page URL, or generate
+    and return a login page.
 
-    Search CPAN
-        http://search.cpan.org/dist/Dancer-Plugin-Auth-Extensible/
+    If no hook issues a redirection or response, the default is to output a
+    simple built-in login page, allowing you to immediately start using this
+    framework.
 
+    Similarly, if the user is logged in, but does not have a suitable role,
+    the `permission_denied' hook will fire; code using that hook can return
+    a redirect or a response. If no code does so, a default "permission
+    denied" response will be issued.
 
+  Keywords
+    logged_in_user
+        Returns a hashref of details of the currently logged-in user, if
+        there is one.
+
+        The details you get back will depend upon the authentication
+        provider in use.
+
+    user_has_role
+        Check if a user has the role named.
+
+        By default, the currently-logged-in user will be checked, so you
+        need only name the role you're looking for:
+
+            if (user_has_role('BeerDrinker')) { pour_beer(); }
+
+        You can also provide the username to check;
+
+            if (user_has_role($user, $role)) { .... }
+
+BUGS / FEATURE REQUESTS
+    This is an early version; there may still be bugs present or features
+    missing.
+
+    This is developed on GitHub - please feel free to raise issues or pull
+    requests!
+
+ACKNOWLEDGEMENTS
 LICENSE AND COPYRIGHT
+    Copyright 2012 David Precious.
 
-Copyright (C) 2012 David Precious
+    This program is free software; you can redistribute it and/or modify it
+    under the terms of either: the GNU General Public License as published
+    by the Free Software Foundation; or the Artistic License.
 
-This program is free software; you can redistribute it and/or modify it
-under the terms of either: the GNU General Public License as published
-by the Free Software Foundation; or the Artistic License.
-
-See http://dev.perl.org/licenses/ for more information.
+    See http://dev.perl.org/licenses/ for more information.
 
