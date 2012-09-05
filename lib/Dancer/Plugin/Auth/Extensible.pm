@@ -96,6 +96,44 @@ sub logged_in_user {
 }
 register logged_in_user => \&logged_in_user;
 
+
+=item user_has_role
+
+Check if a user has the role named.
+
+By default, the currently-logged-in user will be checked, so you need only name
+the role you're looking for:
+
+    if (user_has_role('BeerDrinker')) { pour_beer(); }
+
+You can also provide the username to check; 
+
+    if (user_has_role($user, $role)) { .... }
+
+=cut
+
+sub user_has_role {
+    my ($username, $want_role);
+    if (@_ == 2) {
+        ($username, $want_role) = @_;
+    } else {
+        $username  = session 'logged_in_user';
+        $want_role = shift;
+    }
+
+    return unless defined $username;
+
+    my $roles = auth_provider()->get_user_roles($username);
+
+    for my $has_role (@$roles) {
+        return 1 if $has_role eq $want_role;
+    }
+
+    return 0;
+}
+register user_has_role => \&user_has_role;
+
+
 =back
 
 =cut
