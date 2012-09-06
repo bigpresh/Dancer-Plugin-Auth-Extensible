@@ -123,7 +123,7 @@ sub user_has_role {
 
     return unless defined $username;
 
-    my $roles = auth_provider()->get_user_roles($username);
+    my $roles = user_roles($username);
 
     for my $has_role (@$roles) {
         return 1 if $has_role eq $want_role;
