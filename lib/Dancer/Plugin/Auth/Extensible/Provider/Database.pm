@@ -223,7 +223,6 @@ Details should be returned as a hashref.
 sub get_user_details {
     my ($class, $username) = @_;
 
-    return $users{lc $username};
 }
 
 =item get_user_roles
