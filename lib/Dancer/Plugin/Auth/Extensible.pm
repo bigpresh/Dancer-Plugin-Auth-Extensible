@@ -133,6 +133,26 @@ sub user_has_role {
 }
 register user_has_role => \&user_has_role;
 
+=item user_roles
+
+Returns a list of the roles of a user.
+
+By default, roles for the currently-logged-in user will be checked;
+alternatively, you may supply a username to check.
+
+Returns a list or arrayref depending on context.
+
+=cut
+
+sub user_roles {
+    my ($username) = @_;
+    $username = session 'logged_in_user' unless defined $username;
+
+    my $roles = auth_provider()->get_user_roles($username);
+    return wantarray ? @$roles : $roles;
+}
+register user_roles => \&user_roles;
+
 
 =back
 
