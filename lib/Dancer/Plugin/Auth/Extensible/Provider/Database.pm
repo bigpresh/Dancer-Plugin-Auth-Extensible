@@ -239,24 +239,24 @@ sub get_user_roles {
     # Seriously ugly.  Clear bag of smashed arseholes territory.
 
 
-    my $roles_table = $database->dbh->quote_identifier(
+    my $roles_table = $database->quote_identifier(
         $settings->{roles_table} || 'roles'
     );
-    my $roles_role_id_column = $database->dbh->quote_identifier(
+    my $roles_role_id_column = $database->quote_identifier(
         $settings->{roles_id_column} || 'id'
     );
-    my $roles_role_column = $database->dbh->quote_identifier(
+    my $roles_role_column = $database->quote_identifier(
         $settings->{roles_role_column} || 'role'
     );
 
 
-    my $user_roles_table = $database->dbh->quote_identifier(
+    my $user_roles_table = $database->quote_identifier(
         $settings->{user_roles_table} || 'user_roles'
     );
-    my $user_roles_user_id_column = $database->dbh->quote_identifier(
+    my $user_roles_user_id_column = $database->quote_identifier(
         $settings->{user_roles_user_id_column} || 'user_id'
     );
-    my $user_roles_role_id_column = $database->dbh->quote_identifier(
+    my $user_roles_role_id_column = $database->quote_identifier(
         $settings->{user_roles_role_id_column} || 'role_id'
     );
 
@@ -272,8 +272,8 @@ JOIN $roles_table
 WHERE $user_roles_table.$user_roles_user_id_column = ?
 QUERY
 
-    my $sth = $database->dbh->prepare($sql)
-        or die "Failed to prepare query - error: " . $database->dbh->err_str;
+    my $sth = $database->prepare($sql)
+        or die "Failed to prepare query - error: " . $database->err_str;
 
     $sth->execute($user->{$settings->{users_id_column} || 'id'});
 
