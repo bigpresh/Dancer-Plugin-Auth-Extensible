@@ -118,9 +118,9 @@ shouldn't need it.
 
     CREATE TABLE user_roles (
         user_id  INTEGER  NOT NULL,
-        role_id  INTEGER  NOT NULL
+        role_id  INTEGER  NOT NULL,
+        UNIQUE KEY user_role (user_id, role_id)
     );
-    UNIQUE KEY user_role (user_id, role_id);
 
 If you're using InnoDB tables rather than the default MyISAM, you could add a
 foreign key constraint for better data integrity; see the MySQL documentation
