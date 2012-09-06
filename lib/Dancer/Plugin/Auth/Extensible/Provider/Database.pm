@@ -230,8 +230,72 @@ sub get_user_roles {
     # Get our database handle and find out the table and column names:
     my $database = database($settings->{db_connection_name});
 
-    # TODO: fetch roles from the DB.
-    # This will likely be the most painful bit.
+    # Get details of the user first; both to check they exist, and so we have
+    # their ID to use.
+    my $user = $class->get_user_details($username)
+        or return;
+
+    # Right, fetch the roles they have.  There's currently no support for
+    # JOINs in Dancer::Plugin::Database, so we'll need to do this query
+    # ourselves - so we'd better take care to quote the table & column names, as
+    # we're going to have to interpolate them.  (They're coming from our config,
+    # so should be pretty trustable, but they might conflict with reserved
+    # identifiers or have unacceptable characters to not be quoted.)
+    # Because I've tried to be so flexible in allowing the user to configure
+    # table names, column names, etc, this is going to be fucking ugly.
+    # Seriously ugly.  Clear bag of smashed arseholes territory.
+
+
+    my $roles_table = $database->dbh->quote_identifier(
+        $settings->{roles_table} || 'roles'
+    );
+    my $roles_role_id_column = $database->dbh->quote_identifier(
+        $settings->{roles_id_column} || 'id'
+    );
+    my $roles_role_column = $database->dbh->quote_identifier(
+        $settings->{roles_role_column} || 'role'
+    );
+
+
+    my $user_roles_table = $database->dbh->quote_identifier(
+        $settings->{user_roles_table} || 'user_roles'
+    );
+    my $user_roles_user_id_column = $database->dbh->quote_identifier(
+        $settings->{user_roles_user_id_column} || 'user_id'
+    );
+    my $user_roles_role_id_column = $database->dbh->quote_identifier(
+        $settings->{user_roles_role_id_column} || 'role_id'
+    );
+
+    # Yes, there's SQL interpolation here; yes, it makes me throw up a little.
+    # However, all the variables used have been quoted appropriately above, so
+    # although it might look like a camel's arsehole, at least it's safe.
+    my $sql = <<QUERY;
+SELECT $roles_table.$roles_role_column
+FROM $user_roles_table
+JOIN $roles_table 
+  ON $roles_table.$roles_role_id_column 
+   = $user_roles_table.$user_roles_role_id_column
+WHERE $user_roles_table.$user_roles_user_id_column = ?
+QUERY
+
+    my $sth = $database->dbh->prepare($sql)
+        or die "Failed to prepare query - error: " . $database->dbh->err_str;
+
+    $sth->execute($user->{id});
+
+    my @roles;
+    while (my($role) = $sth->fetchrow_array) {
+        push @roles, $role;
+    }
+
+    return \@roles;
+
+    # If you read through this, I'm truly, truly sorry.  This mess was the price
+    # of making things so configurable.  Send me your address, and I'll send you
+    # a complementary fork to remove your eyeballs with as way of apology.
+    # If I can bare to look at this code again, I think I might seriously
+    # refactor it and use Template::Tiny or something on it.
 }
 
 
