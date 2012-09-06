@@ -149,6 +149,7 @@ sub user_roles {
     $username = session 'logged_in_user' unless defined $username;
 
     my $roles = auth_provider()->get_user_roles($username);
+    return unless defined $roles;
     return wantarray ? @$roles : $roles;
 }
 register user_roles => \&user_roles;
