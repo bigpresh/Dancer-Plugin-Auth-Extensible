@@ -157,7 +157,7 @@ sub authenticate_user {
 
     # Look up the user, 
     my $user = $database->quick_select(
-        $users_table, { $username_col => $username }
+        $users_table, { $username_column => $username }
     );
     if (!$user) {
         debug("No such user $username");
@@ -170,8 +170,8 @@ sub authenticate_user {
     my $password_match;
     my $check_case = $settings->{case_sensitive_password} || 0;
     $password_match = $check_case
-        ?    $password eq    $user->{$password_col}
-        : lc $password eq lc $user->{$password_col};
+        ?    $password eq    $user->{$password_column}
+        : lc $password eq lc $user->{$password_column};
 
     if (!$password_match) {
         # OK, now try comparing via Crypt::SaltedHash
