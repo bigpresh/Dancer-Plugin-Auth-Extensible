@@ -178,12 +178,6 @@ sub authenticate_user {
         return;
     }
 
-    # OK, the username and password are correct.  If we're not dealing with
-    # roles, then go no further:
-    return 1 if $settings->{disable_roles};
-
-
-
 }
 
 =item get_user_details
