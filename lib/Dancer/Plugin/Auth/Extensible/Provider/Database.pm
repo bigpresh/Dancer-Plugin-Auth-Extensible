@@ -189,6 +189,7 @@ table will be fetched, and all columns returned, as a hashref.
 
 sub get_user_details {
     my ($class, $username) = @_;
+    return unless defined $username;
 
     # Get our database handle and find out the table and column names:
     my $database = database($settings->{db_connection_name})
