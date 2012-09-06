@@ -148,27 +148,17 @@ authenticated, or false if not.
 sub authenticate_user {
     my ($class, $username, $password) = @_;
 
-    # Get our database handle and find out the table and column names:
-    my $database = database($settings->{db_connection_name});
+    # Look up the user:
+    my $user = $class->get_user_details($username);
+    return unless $user;
 
-    my $users_table     = $settings->{users_table}     || 'users';
-    my $username_column = $settings->{username_column} || 'username';
-    my $password_column = $settings->{password_column} || 'password';
-
-    # Look up the user, 
-    my $user = $database->quick_select(
-        $users_table, { $username_column => $username }
-    );
-    if (!$user) {
-        debug("No such user $username");
-        return;
-    }
 
     # Now, see if the password matches.  Try a direct comparison first, then try
     # comparing using Crypt::SaltedHash.  TODO: perhaps check if it looks
     # anything like a hashed password first?
     my $password_match;
     my $check_case = $settings->{case_sensitive_password} || 0;
+    my $password_column = $settings->{users_password_column} || 'password';
     $password_match = $check_case
         ?    $password eq    $user->{$password_column}
         : lc $password eq lc $user->{$password_column};
@@ -193,20 +183,6 @@ sub authenticate_user {
     return 1 if $settings->{disable_roles};
 
 
-    # Right, next, fetch the roles they have.  There's currently no support for
-    # JOINs in Dancer::Plugin::Database, so we'll need to do this query
-    # ourselves - so we'd better take care to quote the table & column names, as
-    # we're going to have to interpolate them.  (They're coming from our config,
-    # so should be pretty trustable, but they might conflict with reserved
-    # identifiers or have unacceptable characters to not be quoted.)
-    my $roles_table = $database->dbh->quote_identifier(
-        $settings->{roles_table} || 'roles'
-    );
-    my $user_roles_table = $database->dbh->quote_identifier(
-        $settings->{user_roles_table} || 'user_roles'
-    );
-    my $user_id = $database->dbh->quote_identifier($user->{
-
 
 }
 
@@ -223,6 +199,23 @@ Details should be returned as a hashref.
 sub get_user_details {
     my ($class, $username) = @_;
 
+    # Get our database handle and find out the table and column names:
+    my $database = database($settings->{db_connection_name});
+
+    my $users_table     = $settings->{users_table}     || 'users';
+    my $username_column = $settings->{users_username_column} || 'username';
+    my $password_column = $settings->{users_password_column} || 'password';
+
+    # Look up the user, 
+    my $user = $database->quick_select(
+        $users_table, { $username_column => $username }
+    );
+    if (!$user) {
+        debug("No such user $username");
+        return;
+    } else {
+        return $user;
+    }
 }
 
 =item get_user_roles
@@ -234,11 +227,13 @@ Given a username, return a list of roles that user has.
 sub get_user_roles {
     my ($class, $username) = @_;
 
-    my $user_details = $class->get_user_details($username) or return;
-    return $user_details->{roles};
+    # Get our database handle and find out the table and column names:
+    my $database = database($settings->{db_connection_name});
+
+    # TODO: fetch roles from the DB.
+    # This will likely be the most painful bit.
 }
 
 
 
 1;
-
