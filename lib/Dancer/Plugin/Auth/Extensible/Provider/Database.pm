@@ -191,7 +191,8 @@ sub get_user_details {
     my ($class, $username) = @_;
 
     # Get our database handle and find out the table and column names:
-    my $database = database($settings->{db_connection_name});
+    my $database = database($settings->{db_connection_name})
+        or die "No database connection";
 
     my $users_table     = $settings->{users_table}     || 'users';
     my $username_column = $settings->{users_username_column} || 'username';
