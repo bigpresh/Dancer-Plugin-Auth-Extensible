@@ -188,11 +188,8 @@ sub authenticate_user {
 
 =item get_user_details
 
-Given a username, return details about the user.  The details returned will vary
-depending on the provider; some providers may be able to return various data
-about the user, some may not, depending on the authentication source.
-
-Details should be returned as a hashref.
+Given a username, return details about the user.   The user's row in the users
+table will be fetched, and all columns returned, as a hashref.
 
 =cut
 
@@ -282,7 +279,7 @@ QUERY
     my $sth = $database->dbh->prepare($sql)
         or die "Failed to prepare query - error: " . $database->dbh->err_str;
 
-    $sth->execute($user->{id});
+    $sth->execute($user->{$settings->{users_id_column} || 'id'});
 
     my @roles;
     while (my($role) = $sth->fetchrow_array) {
