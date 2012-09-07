@@ -67,22 +67,28 @@ Multiple roles can easily be provided as a space-separated list, for example:
         ...
     };
 
+(The user will be granted access if they have any of the roles denoted.)
+
 If you only care that the user be logged in, use the RequireLogin attribute
 instead:
 
     get '/dashboard' => sub :RequireLogin { .... };
 
-If the user is not logged in, the C<login_needed> hook will fire; code using
-that hook can return a redirect to a login page URL, or generate and return a
-login page.
 
-If no hook issues a redirection or response, the default is to output a simple
-built-in login page, allowing you to immediately start using this framework.
+If the user is not logged in, they will be redirected to the login page URL to
+log in.  Currently, the URL is C</login> - this may be made configurable.
 
-Similarly, if the user is logged in, but does not have a suitable role, the
-C<permission_denied> hook will fire; code using that hook can return a redirect
-or a response.  If no code does so, a default "permission denied" response will
-be issued.
+By default, the plugin adds a route to present a simple login form at that URL.
+If you would rather add your own, set the C<no_default_pages> setting to a true
+value, and define your own route which responds to C</login> with a login page.
+
+If the user is logged in, but tries to access a route which requires a specific
+role they don't have, they will be redirected to the "permission denied" page
+URL, which is C</login/denied> - this may be made configurable later.
+
+Again, by default a route is added to respond to that URL with a default page;
+again, you can disable this by setting C<no_default_pages> and creating your
+own.
 
 =head2 Keywords
 
