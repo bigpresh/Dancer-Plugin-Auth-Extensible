@@ -360,12 +360,15 @@ David Precious, C<< <davidp at preshweb.co.uk> >>
 
 This is an early version; there may still be bugs present or features missing.
 
-This is developed on GitHub - please feel free to raise issues or pull requests!
-
+This is developed on GitHub - please feel free to raise issues or pull requests
+against the repo at:
+L<https://github.com/bigpresh/Dancer-Plugin-Auth-Extensible>
 
 
 
 =head1 ACKNOWLEDGEMENTS
+
+None yet - why not help out and get your name here? :)
 
 
 =head1 LICENSE AND COPYRIGHT
