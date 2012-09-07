@@ -128,9 +128,9 @@ for details, but a table definition using foreign keys could look like:
 
     CREATE TABLE user_roles (
         user_id  INTEGER, FOREIGN KEY (user_id) REFERENCES users (id),
-        role_id  INTEGER, FOREIGN_KEY (role_id) REFERENCES roles (id)
+        role_id  INTEGER, FOREIGN_KEY (role_id) REFERENCES roles (id),
+        UNIQUE KEY user_role (user_id, role_id)
     ) ENGINE=InnoDB;
-    UNIQUE KEY user_role (user_id, role_id);
 
 
 =cut
