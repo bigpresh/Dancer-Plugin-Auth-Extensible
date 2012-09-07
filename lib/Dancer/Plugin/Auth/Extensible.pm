@@ -22,11 +22,11 @@ Dancer::Plugin::Auth::Extensible - extensible authentication framework for Dance
 
 =head1 SYNOPSIS
 
-Configure the plugin to use the authentication class you wish to use.
+Configure the plugin to use the authentication provider class you wish to use.
 
 See for example L<Dancer::Plugin::Auth::Extensible::Provider::Database>.
 
-    plugins:
+  plugins:
         auth:
             extensible:
                 provider: Example
@@ -44,6 +44,16 @@ logged in with the C<logged_in_user> keyword:
         return "Hi there, $user->{username}";
     };
 
+
+=head1 Authentication providers
+
+For flexibility, this authentication framework uses simple authenticatino
+provider classes, which implement a simple interface and do whatever is required
+to authenticate a user.
+
+For an example of how simple provider classes are, so you can build your own if
+required or just try out this authentication framework plugin easily, 
+see L<Dancer::Plugin::Auth::Extensible::Provider::Example>
 
 
 =head1 Controlling access to routes
