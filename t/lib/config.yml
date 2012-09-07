@@ -1,0 +1,8 @@
+session: simple
+plugins:
+    Auth::Extensible:
+        provider: Example
+
+logger: console
+log: core
+show_errors: 1
