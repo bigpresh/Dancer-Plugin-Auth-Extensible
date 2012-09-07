@@ -13,6 +13,10 @@ WriteMakefile(
     PL_FILES            => {},
     PREREQ_PM => {
         'Test::More' => 0,
+        'Dancer'     => 1.3100,
+        'Dancer::Plugin::Database' => 1.82,
+        'Crypt::SaltedHash' => 0,
+        
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Dancer-Plugin-Auth-Extensible-*' },
