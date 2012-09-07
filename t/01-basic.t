@@ -69,6 +69,6 @@ response_redirect_location_is  [ GET => '/piss' ],
     "We cannot request a route requiring a role we don't have";
 
 
-
+done_testing();
 
 
