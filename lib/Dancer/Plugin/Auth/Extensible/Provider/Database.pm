@@ -108,7 +108,7 @@ section).
         role  VARCHAR(32) NOT NULL
     );
 
-=head user_roles table
+=head2 user_roles table
 
 Finally, (unless you've disabled role support)  you'll need a table to store
 user <-> role mappings (i.e. one row for every role a user has; so adding 
@@ -137,6 +137,8 @@ for details, but a table definition using foreign keys could look like:
 
 
 =head1 CLASS METHODS
+
+=over
 
 =item authenticate_user
 

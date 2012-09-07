@@ -38,6 +38,9 @@ to build your own authentication provider class, this may be of use.
 
 =cut
 
+=head1 Class methods
+
+=over
 
 =item authenticate_user
 
