@@ -187,6 +187,28 @@ In your application's configuation file:
     plugins:
         Auth::Extensible:
             provider: Database
+            # optionally set DB connection name to use (see named connections in
+            # Dancer::Plugin::Database docs)
+            db_connection_name: 'foo'
+
+            # Set to 1 if you want to disable the use of roles (0 is default)
+            disable_roles: 0
+
+            # Set these if you use something other than the default table
+            # names
+            users_table: 'users'
+            roles_table: 'roles'
+            user_roles_table: 'user_roles'
+
+            # Set these if you use something other than the default column
+            # names 
+            users_id_column: 'id'
+            users_username_column: 'username'
+            users_password_column: 'password'
+            roles_id_column: 'id'
+            roles_role_column: 'role'
+            user_roles_user_id_column: 'user_id'
+            user_roles_role_id_column: 'roles_id'
 
 B< Please note > that you B< must > have a session provider configured.  The authentication
 framework requires sessions in order to track information about the currently logged in user.
@@ -194,7 +216,6 @@ Please see L< Dancer::Session > for information on how to configure session mana
 within your application.
 
 =cut
-
 
 # Loads the auth provider (if it's not already loaded) and returns the package
 # name.
