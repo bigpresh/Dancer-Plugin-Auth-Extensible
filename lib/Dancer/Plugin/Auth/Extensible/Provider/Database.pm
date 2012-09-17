@@ -5,7 +5,6 @@ use Dancer::Plugin;
 use Dancer::Plugin::Database;
 use Dancer qw(:syntax);
 
-my $settings = plugin_setting();
 
 =head1 NAME 
 
@@ -148,16 +147,17 @@ authenticated, or false if not.
 =cut
 
 sub authenticate_user {
-    my ($class, $username, $password) = @_;
+    my ($self, $username, $password) = @_;
 
     # Look up the user:
-    my $user = $class->get_user_details($username);
+    my $user = $self->get_user_details($username);
     return unless $user;
 
 
     # Now, see if the password matches.  Try a direct comparison first, then try
     # comparing using Crypt::SaltedHash.  TODO: perhaps check if it looks
     # anything like a hashed password first?
+    my $settings = $self->realm_settings;
     my $password_match;
     my $check_case = $settings->{case_sensitive_password} || 0;
     my $password_column = $settings->{users_password_column} || 'password';
@@ -190,8 +190,10 @@ table will be fetched, and all columns returned, as a hashref.
 =cut
 
 sub get_user_details {
-    my ($class, $username) = @_;
+    my ($self, $username) = @_;
     return unless defined $username;
+
+    my $settings = $self->realm_settings;
 
     # Get our database handle and find out the table and column names:
     my $database = database($settings->{db_connection_name})
@@ -220,14 +222,15 @@ Given a username, return a list of roles that user has.
 =cut
 
 sub get_user_roles {
-    my ($class, $username) = @_;
+    my ($self, $username) = @_;
 
+    my $settings = $self->realm_settings;
     # Get our database handle and find out the table and column names:
     my $database = database($settings->{db_connection_name});
 
     # Get details of the user first; both to check they exist, and so we have
     # their ID to use.
-    my $user = $class->get_user_details($username)
+    my $user = $self->get_user_details($username)
         or return;
 
     # Right, fetch the roles they have.  There's currently no support for
@@ -289,7 +292,7 @@ QUERY
     # If you read through this, I'm truly, truly sorry.  This mess was the price
     # of making things so configurable.  Send me your address, and I'll send you
     # a complementary fork to remove your eyeballs with as way of apology.
-    # If I can bare to look at this code again, I think I might seriously
+    # If I can bear to look at this code again, I think I might seriously
     # refactor it and use Template::Tiny or something on it.
 }
 
