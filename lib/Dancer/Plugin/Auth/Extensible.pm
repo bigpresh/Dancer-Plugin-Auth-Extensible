@@ -24,9 +24,11 @@ Dancer::Plugin::Auth::Extensible - extensible authentication framework for Dance
 Configure the plugin to use the authentication provider class you wish to use:
 
   plugins:
-        auth:
-            extensible:
-                provider: Example
+        Auth::Extensible:
+            realms:
+                users:
+                    provider: Example
+                    ....
 
 Define that a user must be logged in and have the proper permissions to 
 access a route:
