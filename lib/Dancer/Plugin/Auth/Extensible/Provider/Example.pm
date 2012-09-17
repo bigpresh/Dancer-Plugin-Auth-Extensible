@@ -1,23 +1,25 @@
 package Dancer::Plugin::Auth::Extensible::Provider::Example;
 
 use strict;
+use base Dancer::Plugin::Auth::Extensible::Provider::Base;
 
 # A more sensible provider would be likely to get this information from e.g. a
 # database (or LDAP, or...) rather than hardcoding it.  This, however, is an
 # example.
-my %users = (
-    'dave' => {
-        name     => 'David Precious',
-        password => 'beer',
-        roles    => [ qw(Motorcyclist BeerDrinker) ],
-    },
-    'bob' => {
-        name     => 'Bob The Builder',
-        password => 'canhefixit',
-        roles    => [ qw(Fixer) ],
-    },
-);
-
+sub users {
+    return {
+        'dave' => {
+            name     => 'David Precious',
+            password => 'beer',
+            roles    => [ qw(Motorcyclist BeerDrinker) ],
+        },
+        'bob' => {
+            name     => 'Bob The Builder',
+            password => 'canhefixit',
+            roles    => [ qw(Fixer) ],
+        },
+    };
+}
 
 =head1 NAME 
 
@@ -50,9 +52,9 @@ authenticated, or false if not.
 =cut
 
 sub authenticate_user {
-    my ($class, $username, $password) = @_;
+    my ($self, $username, $password) = @_;
 
-    my $user_details = $class->get_user_details($username) or return;
+    my $user_details = $self->get_user_details($username) or return;
 
     return $password eq $user_details->{password};
 }
@@ -68,9 +70,9 @@ Details should be returned as a hashref.
 =cut
 
 sub get_user_details {
-    my ($class, $username) = @_;
+    my ($self, $username) = @_;
 
-    return $users{lc $username};
+    return $self->users->{lc $username};
 }
 
 =item get_user_roles
@@ -80,9 +82,9 @@ Given a username, return a list of roles that user has.
 =cut
 
 sub get_user_roles {
-    my ($class, $username) = @_;
+    my ($self, $username) = @_;
 
-    my $user_details = $class->get_user_details($username) or return;
+    my $user_details = $self->get_user_details($username) or return;
     return $user_details->{roles};
 }
 
