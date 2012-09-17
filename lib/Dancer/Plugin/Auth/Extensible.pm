@@ -45,7 +45,7 @@ logged in with the C<logged_in_user> keyword:
 
 =head1 AUTHENTICATION PROVIDERS
 
-For flexibility, this authentication framework uses simple authenticatino
+For flexibility, this authentication framework uses simple authentication
 provider classes, which implement a simple interface and do whatever is required
 to authenticate a user.
 
