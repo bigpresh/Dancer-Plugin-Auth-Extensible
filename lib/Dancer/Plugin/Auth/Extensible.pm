@@ -19,20 +19,17 @@ our @EXPORT=qw(MODIFY_CODE_ATTRIBUTES FETCH_CODE_ATTRIBUTES);
 
 Dancer::Plugin::Auth::Extensible - extensible authentication framework for Dancer apps
 
-
 =head1 SYNOPSIS
 
-Configure the plugin to use the authentication provider class you wish to use.
-
-See for example L<Dancer::Plugin::Auth::Extensible::Provider::Database>.
+Configure the plugin to use the authentication provider class you wish to use:
 
   plugins:
         auth:
             extensible:
                 provider: Example
 
-
-Define that a user must be logged in to access a route:
+Define that a user must be logged in and have the proper permissions to 
+access a route:
 
     get '/secret' => sub :RequireRole(Confidant) { tell_secrets(); };
 
@@ -44,8 +41,7 @@ logged in with the C<logged_in_user> keyword:
         return "Hi there, $user->{username}";
     };
 
-
-=head1 Authentication providers
+=head1 AUTHENTICATION PROVIDERS
 
 For flexibility, this authentication framework uses simple authenticatino
 provider classes, which implement a simple interface and do whatever is required
@@ -53,10 +49,19 @@ to authenticate a user.
 
 For an example of how simple provider classes are, so you can build your own if
 required or just try out this authentication framework plugin easily, 
-see L<Dancer::Plugin::Auth::Extensible::Provider::Example>
+see L<Dancer::Plugin::Auth::Extensible::Provider::Example>.
 
+This framework supplies the following providers out-of-the-box:
 
-=head1 Controlling access to routes
+=over 4
+
+=item L<Dancer::Plugin::Auth::Extensible::Provider::Unix>
+
+=item L<Dancer::Plugin::Auth::Extensible::Provider::Database>
+
+=back
+
+=head1 CONTROLLING ACCESS TO ROUTES
 
 Subroutine attributes are used to indicate that a route requires a login, or a
 specific role.
@@ -74,9 +79,10 @@ instead:
 
     get '/dashboard' => sub :RequireLogin { .... };
 
-
 If the user is not logged in, they will be redirected to the login page URL to
 log in.  Currently, the URL is C</login> - this may be made configurable.
+
+=head2 Replacing the Default C< /login > and C< /login/denied > Routes
 
 By default, the plugin adds a route to present a simple login form at that URL.
 If you would rather add your own, set the C<no_default_pages> setting to a true
@@ -111,7 +117,6 @@ sub logged_in_user {
     }
 }
 register logged_in_user => \&logged_in_user;
-
 
 =item user_has_role
 
@@ -173,8 +178,44 @@ register user_roles => \&user_roles;
 
 =back
 
-=cut
+=head2 COMPLETE SAMPLE CONFIGURATION
 
+In your application's configuation file:
+
+  plugins:
+    session: simple
+    plugins:
+        Auth::Extensible:
+            provider: Database
+            # optionally set DB connection name to use (see named connections in
+            # Dancer::Plugin::Database docs)
+            db_connection_name: 'foo'
+
+            # Set to 1 if you want to disable the use of roles (0 is default)
+            disable_roles: 0
+
+            # Set these if you use something other than the default table
+            # names
+            users_table: 'users'
+            roles_table: 'roles'
+            user_roles_table: 'user_roles'
+
+            # Set these if you use something other than the default column
+            # names 
+            users_id_column: 'id'
+            users_username_column: 'username'
+            users_password_column: 'password'
+            roles_id_column: 'id'
+            roles_role_column: 'role'
+            user_roles_user_id_column: 'user_id'
+            user_roles_role_id_column: 'roles_id'
+
+B< Please note > that you B< must > have a session provider configured.  The authentication
+framework requires sessions in order to track information about the currently logged in user.
+Please see L< Dancer::Session > for information on how to configure session management
+within your application.
+
+=cut
 
 # Loads the auth provider (if it's not already loaded) and returns the package
 # name.
