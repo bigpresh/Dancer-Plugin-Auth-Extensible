@@ -112,8 +112,9 @@ The details you get back will depend upon the authentication provider in use.
 
 sub logged_in_user {
     if (my $user = session 'logged_in_user') {
-        my $provider = auth_provider();
-        return $provider->get_user_details($user);
+        my $realm = session 'logged_in_user_realm';
+        my $provider = auth_provider($realm);
+        return $provider->get_user_details($user, $realm);
     } else {
         return;
     }
@@ -178,6 +179,31 @@ sub user_roles {
 register user_roles => \&user_roles;
 
 
+=item authenticate_user
+
+Usually you'll want to let the built-in login handling code deal with
+authenticating users, but in case you need to do it yourself, this keyword
+accepts a username and password, and optionally a specific realm, and checks
+whether the username and password are valid.
+
+For example:
+
+    if (authenticate_user($username, $password)) {
+        ...
+    }
+
+If you are using multiple authentication realms, by default each realm will be
+consulted in turn.  If you only wish to check one of them (for instance, you're
+authenticating an admin user, and there's only one realm which applies to them),
+you can supply the realm as an optional third parameter.
+
+=cut
+
+sub authenticate_user {
+    my ($username, $password, $realm) = @_;
+
+}
+
 =back
 
 =head2 COMPLETE SAMPLE CONFIGURATION
@@ -222,7 +248,10 @@ within your application.
 # Loads the auth provider (if it's not already loaded) and returns the package
 # name.
 sub auth_provider {
-    my $provider = $settings->{provider}
+    my $realm = shift;
+    my $realm_settings = $settings->{realms}{$realm}
+        or die "Invalid realm $realm";
+    my $provider = $realm_settings->{provider}
         or die "No provider configured - consult documentation for "
             . __PACKAGE__;
 
@@ -267,7 +296,8 @@ hook before => sub {
 
     # OK, find out what roles this user has; if they have one of the roles we're
     # looking for, they're OK
-    my $user_roles = auth_provider()->get_user_roles(
+    my $realm = session 'logged_in_user_realm';
+    my $user_roles = auth_provider($realm)->get_user_roles(
         session 'logged_in_user'
     );
 
@@ -335,6 +365,22 @@ sub get_attribs_by_type {
     ];
 }
 
+# Given a class method name and a set of parameters, try calling that class
+# method for each realm in turn, arranging for each to receive the configuration
+# defined for that realm, until one returns a non-undef, then return the realm which
+# succeeded and the response.
+# Note: all provider class methods return a single value; if any need to return
+# a list in future, this will need changing)
+sub _try_realms {
+    my ($method, @args);
+    for my $realm (keys %{ $settings{realms} }) {
+        my $provider = auth_provider($realm);
+        if (defined(my $result = $provider->method(@args))) {
+            return $result;
+        }
+    }
+    return;
+}
 
 # Set up routes to serve default pages, if desired
 if (!$settings->{no_default_pages}) {
@@ -351,8 +397,9 @@ if (!$settings->{no_default_pages}) {
 # Handle logging in...
 post '/login' => sub {
     my $provider = auth_provider();
-    if ($provider->authenticate_user(params->{username}, params->{password})) {
+    if (my $realm = authenticate_user(params->{username}, params->{password})) {
         session logged_in_user => params->{username};
+        session logged_in_user_realm = $realm;
         redirect params->{return_url} || '/';
     } else {
         vars->{login_failed}++;
