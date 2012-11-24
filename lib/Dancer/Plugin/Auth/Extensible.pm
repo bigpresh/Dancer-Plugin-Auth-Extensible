@@ -245,24 +245,34 @@ within your application.
 
 =cut
 
-# Loads the auth provider (if it's not already loaded) and returns the package
-# name.
+# Given a realm, returns a configured and ready to use instance of the provider
+# specified by that realm's config.
+{
+my %realm_provider;
 sub auth_provider {
     my $realm = shift;
+
+    # First, if we already have a provider for this realm, go ahead and use it:
+    return $realm_provider{$realm} if exists $realm_provider{$realm};
+
+    # OK, we need to find out what provider this realm uses, and get an instance
+    # of that provider, configured with the settings from the realm.
     my $realm_settings = $settings->{realms}{$realm}
         or die "Invalid realm $realm";
-    my $provider = $realm_settings->{provider}
+    my $provider_class = $realm_settings->{provider}
         or die "No provider configured - consult documentation for "
             . __PACKAGE__;
 
-    if ($provider !~ /::/) {
-        $provider = __PACKAGE__ . "::Provider::$provider";
+    if ($provider_class !~ /::/) {
+        $provider_class = __PACKAGE__ . "::Provider::$provider_class";
     }
-    Dancer::ModuleLoader->load($provider)
-        or die "Cannot load provider $provider";
+    Dancer::ModuleLoader->load($provider_class)
+        or die "Cannot load provider $provider_class";
 
-    return $provider;
+    return $realm_provider{$realm} = $provider_class->new;
 }
+}
+
 register_hook qw(login_required permission_denied);
 register_plugin versions => qw(1 2);
 
@@ -373,7 +383,7 @@ sub get_attribs_by_type {
 # a list in future, this will need changing)
 sub _try_realms {
     my ($method, @args);
-    for my $realm (keys %{ $settings{realms} }) {
+    for my $realm (keys %{ $settings->{realms} }) {
         my $provider = auth_provider($realm);
         if (defined(my $result = $provider->method(@args))) {
             return $result;
@@ -399,7 +409,7 @@ post '/login' => sub {
     my $provider = auth_provider();
     if (my $realm = authenticate_user(params->{username}, params->{password})) {
         session logged_in_user => params->{username};
-        session logged_in_user_realm = $realm;
+        session logged_in_user_realm => $realm;
         redirect params->{return_url} || '/';
     } else {
         vars->{login_failed}++;
