@@ -68,6 +68,70 @@ response_redirect_location_is  [ GET => '/piss' ],
     'http://localhost/login/denied',
     "We cannot request a route requiring a role we don't have";
 
+# Check the realm we authenticated against is what we expect
+response_content_is [ GET => '/realm' ], 'config1',
+    'Authenticated against expected realm';
+
+# Now, log out
+response_status_is [
+    POST => '/logout', {},
+], 200, 'Logging out returns 200';
+
+
+# Check we can't access protected pages now we logged out:
+response_redirect_location_is  [ GET => '/loggedin' ], 'http://localhost/login',
+    '/loggedin redirected to login page after logging out';
+
+response_redirect_location_is  [ GET => '/beer' ], 'http://localhost/login',
+'/beer redirected to login page after logging out';
+
+# OK, log back in, this time as a user from the second realm
+response_status_is [
+    POST => '/login', { body => { username => 'burt', password => 'bacharach' } }
+], 302, 'Login as user from second realm succeeds';
+
+# And that now we're logged in again, we can access protected pages
+response_status_is [ GET => '/loggedin' ], 200,
+    'Can access /loggedin now we are logged in again';
+
+# And that the realm we authenticated against is what we expect
+response_content_is [ GET => '/realm' ], 'config2',
+    'Authenticated against expected realm';
+
+# Now, log out again
+response_status_is [
+    POST => '/logout', {},
+], 200, 'Logged out again';
+
+
+# Now check we can log in as a user whose password is stored hashed:
+response_status_is [
+    POST => '/login', { 
+        body => { username => 'hashedpassword', password => 'password' } 
+    }
+], 302, 'Login as user with hashed password succeeds';
+
+# And that now we're logged in again, we can access protected pages
+response_status_is [ GET => '/loggedin' ], 200,
+    'Can access /loggedin now we are logged in again';
+
+# Check that the redirect URL can be set when logging in
+response_redirect_location_is(
+    [
+        POST => '/login', {
+            body => { 
+                username => 'dave',
+                password => 'beer',
+                return_url => '/foobar',
+            },
+        },
+    ],
+    'http://localhost/foobar',
+    'Redirect after login to given return_url works',
+);
+
+
+
 
 done_testing();
 

@@ -24,9 +24,15 @@ Dancer::Plugin::Auth::Extensible - extensible authentication framework for Dance
 Configure the plugin to use the authentication provider class you wish to use:
 
   plugins:
-        auth:
-            extensible:
-                provider: Example
+        Auth::Extensible:
+            realms:
+                users:
+                    provider: Example
+                    ....
+
+The configuration you provide will depend on the authentication provider module
+in use.  For a simple example, see
+L<Dancer::Plugin::Auth:Extensible::Provider::Config>.
 
 Define that a user must be logged in and have the proper permissions to 
 access a route:
@@ -43,7 +49,7 @@ logged in with the C<logged_in_user> keyword:
 
 =head1 AUTHENTICATION PROVIDERS
 
-For flexibility, this authentication framework uses simple authenticatino
+For flexibility, this authentication framework uses simple authentication
 provider classes, which implement a simple interface and do whatever is required
 to authenticate a user.
 
@@ -58,6 +64,8 @@ This framework supplies the following providers out-of-the-box:
 =item L<Dancer::Plugin::Auth::Extensible::Provider::Unix>
 
 =item L<Dancer::Plugin::Auth::Extensible::Provider::Database>
+
+=item L<Dancer::Plugin::Auth::Extensible::Provider::Config>
 
 =back
 
@@ -110,8 +118,9 @@ The details you get back will depend upon the authentication provider in use.
 
 sub logged_in_user {
     if (my $user = session 'logged_in_user') {
-        my $provider = auth_provider();
-        return $provider->get_user_details($user);
+        my $realm    = session 'logged_in_user_realm';
+        my $provider = auth_provider($realm);
+        return $provider->get_user_details($user, $realm);
     } else {
         return;
     }
@@ -176,62 +185,112 @@ sub user_roles {
 register user_roles => \&user_roles;
 
 
-=back
+=item authenticate_user
 
-=head2 COMPLETE SAMPLE CONFIGURATION
+Usually you'll want to let the built-in login handling code deal with
+authenticating users, but in case you need to do it yourself, this keyword
+accepts a username and password, and optionally a specific realm, and checks
+whether the username and password are valid.
 
-In your application's configuation file:
+For example:
 
-  plugins:
-    session: simple
-    plugins:
-        Auth::Extensible:
-            provider: Database
-            # optionally set DB connection name to use (see named connections in
-            # Dancer::Plugin::Database docs)
-            db_connection_name: 'foo'
+    if (authenticate_user($username, $password)) {
+        ...
+    }
 
-            # Set to 1 if you want to disable the use of roles (0 is default)
-            disable_roles: 0
+If you are using multiple authentication realms, by default each realm will be
+consulted in turn.  If you only wish to check one of them (for instance, you're
+authenticating an admin user, and there's only one realm which applies to them),
+you can supply the realm as an optional third parameter.
 
-            # Set these if you use something other than the default table
-            # names
-            users_table: 'users'
-            roles_table: 'roles'
-            user_roles_table: 'user_roles'
-
-            # Set these if you use something other than the default column
-            # names 
-            users_id_column: 'id'
-            users_username_column: 'username'
-            users_password_column: 'password'
-            roles_id_column: 'id'
-            roles_role_column: 'role'
-            user_roles_user_id_column: 'user_id'
-            user_roles_role_id_column: 'roles_id'
-
-B< Please note > that you B< must > have a session provider configured.  The authentication
-framework requires sessions in order to track information about the currently logged in user.
-Please see L< Dancer::Session > for information on how to configure session management
-within your application.
+In boolean context, returns simply true or false; in list context, returns
+C<($success, $realm)>.
 
 =cut
 
-# Loads the auth provider (if it's not already loaded) and returns the package
-# name.
+sub authenticate_user {
+    my ($username, $password, $realm) = @_;
+
+    my @realms_to_check = $realm? ($realm) : (keys %{ $settings->{realms} });
+
+    for my $realm (@realms_to_check) {
+        debug "Attempting to authenticate $username against realm $realm";
+        my $provider = auth_provider($realm);
+        if ($provider->authenticate_user($username, $password)) {
+            debug "$realm accepted user $username";
+            return wantarray ? (1, $realm) : 1;
+        }
+    }
+
+    # If we get to here, we failed to authenticate against any realm using the
+    # details provided. 
+    # TODO: allow providers to raise an exception if something failed, and catch
+    # that and do something appropriate, rather than just treating it as a
+    # failed login.
+    return wantarray ? (0, undef) : 0;
+}
+
+=back
+
+=head2 SAMPLE CONFIGURATION
+
+In your application's configuation file:
+
+    session: simple
+    plugins:
+        Auth::Extensible:
+            # Set to 1 if you want to disable the use of roles (0 is default)
+            disable_roles: 0
+            
+            # List each authentication realm, with the provider to use and the
+            # provider-specific settings (see the documentation for the provider
+            # you wish to use)
+            realms:
+                realm_one:
+                    provider: Database
+                        db_connection_name: 'foo'
+
+B<Please note> that you B<must> have a session provider configured.  The 
+authentication framework requires sessions in order to track information about 
+the currently logged in user.
+Please see L<Dancer::Session> for information on how to configure session 
+management within your application.
+
+=cut
+
+# Given a realm, returns a configured and ready to use instance of the provider
+# specified by that realm's config.
+{
+my %realm_provider;
 sub auth_provider {
-    my $provider = $settings->{provider}
+    my $realm = shift;
+
+    # If no realm was provided, but we have a logged in user, use their realm:
+    if (!$realm && session->{logged_in_user}) {
+        $realm = session->{logged_in_user_realm};
+    }
+
+    # First, if we already have a provider for this realm, go ahead and use it:
+    return $realm_provider{$realm} if exists $realm_provider{$realm};
+
+    # OK, we need to find out what provider this realm uses, and get an instance
+    # of that provider, configured with the settings from the realm.
+    my $realm_settings = $settings->{realms}{$realm}
+        or die "Invalid realm $realm";
+    my $provider_class = $realm_settings->{provider}
         or die "No provider configured - consult documentation for "
             . __PACKAGE__;
 
-    if ($provider !~ /::/) {
-        $provider = __PACKAGE__ . "::Provider::$provider";
+    if ($provider_class !~ /::/) {
+        $provider_class = __PACKAGE__ . "::Provider::$provider_class";
     }
-    Dancer::ModuleLoader->load($provider)
-        or die "Cannot load provider $provider";
+    Dancer::ModuleLoader->load($provider_class)
+        or die "Cannot load provider $provider_class";
 
-    return $provider;
+    return $realm_provider{$realm} = $provider_class->new($realm_settings);
 }
+}
+
 register_hook qw(login_required permission_denied);
 register_plugin versions => qw(1 2);
 
@@ -265,7 +324,8 @@ hook before => sub {
 
     # OK, find out what roles this user has; if they have one of the roles we're
     # looking for, they're OK
-    my $user_roles = auth_provider()->get_user_roles(
+    my $realm = session 'logged_in_user_realm';
+    my $user_roles = auth_provider($realm)->get_user_roles(
         session 'logged_in_user'
     );
 
@@ -333,6 +393,25 @@ sub get_attribs_by_type {
     ];
 }
 
+# Given a class method name and a set of parameters, try calling that class
+# method for each realm in turn, arranging for each to receive the configuration
+# defined for that realm, until one returns a non-undef, then return the realm which
+# succeeded and the response.
+# Note: all provider class methods return a single value; if any need to return
+# a list in future, this will need changing)
+sub _try_realms {
+    my ($method, @args);
+    for my $realm (keys %{ $settings->{realms} }) {
+        my $provider = auth_provider($realm);
+        if (!$provider->can($method)) {
+            die "Provider $provider does not provide a $method method!";
+        }
+        if (defined(my $result = $provider->$method(@args))) {
+            return $result;
+        }
+    }
+    return;
+}
 
 # Set up routes to serve default pages, if desired
 if (!$settings->{no_default_pages}) {
@@ -348,13 +427,28 @@ if (!$settings->{no_default_pages}) {
 
 # Handle logging in...
 post '/login' => sub {
-    my $provider = auth_provider();
-    if ($provider->authenticate_user(params->{username}, params->{password})) {
+    my ($success, $realm) = authenticate_user(
+        params->{username}, params->{password}
+    );
+    if ($success) {
         session logged_in_user => params->{username};
+        session logged_in_user_realm => $realm;
         redirect params->{return_url} || '/';
     } else {
         vars->{login_failed}++;
         forward '/login', { login_failed => 1 }, { method => 'GET' };
+    }
+};
+
+# ... and logging out.
+any ['get','post'] => '/logout' => sub {
+    session->destroy;
+    if (params->{return_url}) {
+        redirect params->{return_url};
+    } else {
+        # TODO: perhaps make this more configurable, perhaps by attempting to
+        # render a template first.
+        return "OK, logged out successfully.";
     }
 };
 

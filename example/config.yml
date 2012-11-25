@@ -6,7 +6,16 @@ log: core
 
 plugins:
     Auth::Extensible:
-            provider: Example
+        realms:
+            example:
+                provider: Example
+            config:
+                provider: Config
+                users:
+                    - user: 'configuser'
+                      pass: 'password'
+                      roles:
+                        - TestPerson
 
 
 show_errors: 1
