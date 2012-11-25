@@ -395,6 +395,9 @@ sub _try_realms {
     my ($method, @args);
     for my $realm (keys %{ $settings->{realms} }) {
         my $provider = auth_provider($realm);
+        if (!$provider->can($method)) {
+            die "Provider $provider does not provide a $method method!";
+        }
         if (defined(my $result = $provider->$method(@args))) {
             return $result;
         }
