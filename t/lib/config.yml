@@ -1,7 +1,9 @@
 session: simple
 plugins:
     Auth::Extensible:
-        provider: Example
+        realms:
+            example:
+                provider: Example
 
 logger: console
 log: core
