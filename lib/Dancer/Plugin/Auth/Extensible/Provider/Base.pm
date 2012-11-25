@@ -20,7 +20,7 @@ implementation, which will die if they are not overriden.
 =cut
 
 sub new {
-    my ($class, $realm) = @_;
+    my ($class, $realm_settings) = @_;
     my $self = {
         realm_settings => $realm_settings,
     };
