@@ -2,8 +2,25 @@ session: simple
 plugins:
     Auth::Extensible:
         realms:
-            example:
-                provider: Example
+            config1:
+                provider: Config
+                users:
+                    - user: dave
+                      pass: beer
+                      name: "David Precious"
+                      roles:
+                          - BeerDrinker
+                          - Motorcyclist
+                    - user: bob
+                      pass: cider
+                      name: "Bob Smith"
+                      roles:
+                          - CiderDrinker
+            config2:
+                provider: Config
+                users:
+                    - user: burt
+                      pass: bacharach
 
 logger: console
 log: core
