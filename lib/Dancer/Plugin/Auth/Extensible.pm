@@ -265,6 +265,11 @@ my %realm_provider;
 sub auth_provider {
     my $realm = shift;
 
+    # If no realm was provided, but we have a logged in user, use their realm:
+    if (!$realm && session->{logged_in_user}) {
+        $realm = session->{logged_in_user_realm};
+    }
+
     # First, if we already have a provider for this realm, go ahead and use it:
     return $realm_provider{$realm} if exists $realm_provider{$realm};
 
