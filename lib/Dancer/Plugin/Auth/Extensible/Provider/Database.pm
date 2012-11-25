@@ -134,17 +134,6 @@ for details, but a table definition using foreign keys could look like:
 =cut
 
 
-=head1 CLASS METHODS
-
-=over
-
-=item authenticate_user
-
-Given the username and password entered by the user, return true if they are
-authenticated, or false if not.
-
-=cut
-
 sub authenticate_user {
     my ($self, $username, $password) = @_;
 
@@ -160,13 +149,9 @@ sub authenticate_user {
     return $self->match_password($password, $user->{$password_column};
 }
 
-=item get_user_details
 
-Given a username, return details about the user.   The user's row in the users
-table will be fetched, and all columns returned, as a hashref.
-
-=cut
-
+# Return details about the user.  The user's row in the users table will be
+# fetched and all columns returned as a hashref.
 sub get_user_details {
     my ($self, $username) = @_;
     return unless defined $username;
@@ -192,12 +177,6 @@ sub get_user_details {
         return $user;
     }
 }
-
-=item get_user_roles
-
-Given a username, return a list of roles that user has.
-
-=cut
 
 sub get_user_roles {
     my ($self, $username) = @_;
