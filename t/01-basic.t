@@ -98,6 +98,37 @@ response_status_is [ GET => '/loggedin' ], 200,
 response_content_is [ GET => '/realm' ], 'config2',
     'Authenticated against expected realm';
 
+# Now, log out again
+response_status_is [
+    POST => '/logout', {},
+], 200, 'Logged out again';
+
+
+# Now check we can log in as a user whose password is stored hashed:
+response_status_is [
+    POST => '/login', { 
+        body => { username => 'hashedpassword', password => 'password' } 
+    }
+], 302, 'Login as user with hashed password succeeds';
+
+# And that now we're logged in again, we can access protected pages
+response_status_is [ GET => '/loggedin' ], 200,
+    'Can access /loggedin now we are logged in again';
+
+# Check that the redirect URL can be set when logging in
+response_redirect_location_is(
+    [
+        POST => '/login', {
+            body => { 
+                username => 'dave',
+                password => 'beer',
+                return_url => '/foobar',
+            },
+        },
+    ],
+    'http://localhost/foobar',
+    'Redirect after login to given return_url works',
+);
 
 
 
