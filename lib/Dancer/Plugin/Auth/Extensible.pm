@@ -279,7 +279,7 @@ sub auth_provider {
     # Take a copy of the realm settings:
     my %realm_settings = %{ $settings->{realm} };
     delete $realm_settings{provider};
-    return $realm_provider{$realm} = $provider_class->new(%realm_settings);
+    return $realm_provider{$realm} = $provider_class->new(\%realm_settings);
 }
 }
 
