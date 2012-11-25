@@ -206,42 +206,29 @@ sub authenticate_user {
 
 =back
 
-=head2 COMPLETE SAMPLE CONFIGURATION
+=head2 SAMPLE CONFIGURATION
 
 In your application's configuation file:
 
-  plugins:
     session: simple
     plugins:
         Auth::Extensible:
-            provider: Database
-            # optionally set DB connection name to use (see named connections in
-            # Dancer::Plugin::Database docs)
-            db_connection_name: 'foo'
-
             # Set to 1 if you want to disable the use of roles (0 is default)
             disable_roles: 0
+            
+            # List each authentication realm, with the provider to use and the
+            # provider-specific settings (see the documentation for the provider
+            # you wish to use)
+            realms:
+                realm_one:
+                    provider: Database
+                        db_connection_name: 'foo'
 
-            # Set these if you use something other than the default table
-            # names
-            users_table: 'users'
-            roles_table: 'roles'
-            user_roles_table: 'user_roles'
-
-            # Set these if you use something other than the default column
-            # names 
-            users_id_column: 'id'
-            users_username_column: 'username'
-            users_password_column: 'password'
-            roles_id_column: 'id'
-            roles_role_column: 'role'
-            user_roles_user_id_column: 'user_id'
-            user_roles_role_id_column: 'roles_id'
-
-B< Please note > that you B< must > have a session provider configured.  The authentication
-framework requires sessions in order to track information about the currently logged in user.
-Please see L< Dancer::Session > for information on how to configure session management
-within your application.
+B<Please note> that you B<must> have a session provider configured.  The 
+authentication framework requires sessions in order to track information about 
+the currently logged in user.
+Please see L<Dancer::Session> for information on how to configure session 
+management within your application.
 
 =cut
 
@@ -269,7 +256,10 @@ sub auth_provider {
     Dancer::ModuleLoader->load($provider_class)
         or die "Cannot load provider $provider_class";
 
-    return $realm_provider{$realm} = $provider_class->new;
+    # Take a copy of the realm settings:
+    my %realm_settings = %{ $settings->{realm} };
+    delete $realm_settings{provider};
+    return $realm_provider{$realm} = $provider_class->new(%realm_settings);
 }
 }
 
