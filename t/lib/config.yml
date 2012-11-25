@@ -21,6 +21,8 @@ plugins:
                 users:
                     - user: burt
                       pass: bacharach
+                    - user: hashedpassword
+                      pass: "{SSHA}+2u1HpOU7ak6iBR6JlpICpAUvSpA/zBM"
 
 logger: console
 log: core
