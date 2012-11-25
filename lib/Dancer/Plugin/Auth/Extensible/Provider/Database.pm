@@ -152,33 +152,12 @@ sub authenticate_user {
     my $user = $self->get_user_details($username);
     return unless $user;
 
+    # OK, we found a user, let match_password (from our base class) take care of
+    # working out if the password is correct
 
-    # Now, see if the password matches.  Try a direct comparison first, then try
-    # comparing using Crypt::SaltedHash.  TODO: perhaps check if it looks
-    # anything like a hashed password first?
     my $settings = $self->realm_settings;
-    my $password_match;
-    my $check_case = $settings->{case_sensitive_password} || 0;
     my $password_column = $settings->{users_password_column} || 'password';
-    $password_match = $check_case
-        ?    $password eq    $user->{$password_column}
-        : lc $password eq lc $user->{$password_column};
-
-    if (!$password_match) {
-        # OK, now try comparing via Crypt::SaltedHash
-        Crypt::SaltedHash->validate($user->{$password_column}, $password)
-            and $password_match++;
-    }
-
-    # Right, moment of truth: are they todays winner?
-    if ($password_match) {
-        debug("Successful login for $username");
-        return 1;
-    } else {
-        debug("Incorrect password for $username");
-        return;
-    }
-
+    return $self->match_password($password, $user->{$password_column};
 }
 
 =item get_user_details
