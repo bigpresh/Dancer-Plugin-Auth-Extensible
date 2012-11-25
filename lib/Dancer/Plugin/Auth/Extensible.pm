@@ -118,7 +118,7 @@ The details you get back will depend upon the authentication provider in use.
 
 sub logged_in_user {
     if (my $user = session 'logged_in_user') {
-        my $realm = session 'logged_in_user_realm';
+        my $realm    = session 'logged_in_user_realm';
         my $provider = auth_provider($realm);
         return $provider->get_user_details($user, $realm);
     } else {
