@@ -30,6 +30,10 @@ Configure the plugin to use the authentication provider class you wish to use:
                     provider: Example
                     ....
 
+The configuration you provide will depend on the authentication provider module
+in use.  For a simple example, see
+L<Dancer::Plugin::Auth:Extensible::Provider::Config>.
+
 Define that a user must be logged in and have the proper permissions to 
 access a route:
 
@@ -60,6 +64,8 @@ This framework supplies the following providers out-of-the-box:
 =item L<Dancer::Plugin::Auth::Extensible::Provider::Unix>
 
 =item L<Dancer::Plugin::Auth::Extensible::Provider::Database>
+
+=item L<Dancer::Plugin::Auth::Extensible::Provider::Config>
 
 =back
 
