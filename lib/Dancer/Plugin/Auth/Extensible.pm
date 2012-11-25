@@ -440,6 +440,18 @@ post '/login' => sub {
     }
 };
 
+# ... and logging out.
+any ['get','post'] => '/logout' => sub {
+    session->destroy;
+    if (params->{return_url}) {
+        redirect params->{return_url};
+    } else {
+        # TODO: perhaps make this more configurable, perhaps by attempting to
+        # render a template first.
+        return "OK, logged out successfully.";
+    }
+};
+
 sub _default_permission_denied_page {
     return <<PAGE
 <h1>Permission Denied</h1>
