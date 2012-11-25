@@ -212,7 +212,7 @@ sub authenticate_user {
     my ($username, $password, $realm) = @_;
 
     my @realms_to_check = $realm? ($realm) : (keys %{ $settings->{realms} });
-    
+
     for my $realm (@realms_to_check) {
         debug "Attempting to authenticate $username against realm $realm";
         my $provider = auth_provider($realm);
@@ -287,10 +287,7 @@ sub auth_provider {
     Dancer::ModuleLoader->load($provider_class)
         or die "Cannot load provider $provider_class";
 
-    # Take a copy of the realm settings:
-    my %realm_settings = %{ $settings->{realm} };
-    delete $realm_settings{provider};
-    return $realm_provider{$realm} = $provider_class->new(\%realm_settings);
+    return $realm_provider{$realm} = $provider_class->new($realm_settings);
 }
 }
 
