@@ -250,7 +250,7 @@ QUERY
     # of making things so configurable.  Send me your address, and I'll send you
     # a complementary fork to remove your eyeballs with as way of apology.
     # If I can bear to look at this code again, I think I might seriously
-    # refactor it and use Template::Tiny or something on it.
+    # refactor it and use Template::Tiny or something on it.  Or Acme::Bleach.
 }
 
 
