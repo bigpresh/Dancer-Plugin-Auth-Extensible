@@ -27,7 +27,7 @@ sub new {
     return bless $self => $class;
 }
 
-sub realm_settings { shift->{realm_settings} }
+sub realm_settings { shift->{realm_settings} || {} }
 
 
  
