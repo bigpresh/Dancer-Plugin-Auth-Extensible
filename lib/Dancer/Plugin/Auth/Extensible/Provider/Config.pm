@@ -1,7 +1,7 @@
 package Dancer::Plugin::Auth::Extensible::Provider::Config;
 
 use strict;
-use base Dancer::Plugin::Auth::Extensible::Provider::Base;
+use base "Dancer::Plugin::Auth::Extensible::Provider::Base";
 
 =head1 NAME 
 
@@ -60,7 +60,7 @@ sub get_user_details {
     my ($self, $username) = @_;
     my ($user) = grep {
         $_->{user} eq $username 
-    } @{ $self->realm_config->{users} };
+    } @{ $self->realm_settings->{users} };
     return $user;
 }
 
