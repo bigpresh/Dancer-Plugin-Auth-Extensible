@@ -37,4 +37,7 @@ get '/vodka' => sub :RequireRole(HardDrinker) {
     "Only hard drinkers get vodka";
 };
 
+get '/realm' => sub :RequiresLogin() {
+    "You are logged in using realm: " . session->{logged_in_user_realm};
+};
 dance();
