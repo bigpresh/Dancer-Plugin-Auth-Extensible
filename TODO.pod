@@ -23,4 +23,23 @@ provider to test against known results with no outside dependencies.
 =item Improve example auth provider's docs to make it clearer still how to
 create new authentication providers.
 
+=item Multi-realm support
+
+In progress.
+
+Providers need to be converted to OO, accepting the config passed to the
+constructor and using it.
+
+A provider's authenticate_user method should return true if the username and
+password were matched, false if the username was found but the password was
+incorrect, and undef if no such user was found.  (For some providers, it may not
+be possible to provide the differentiation, if the provider is authenticating
+against a system which does not provide a difference.)
+
+
+
+
+
+
+
 
