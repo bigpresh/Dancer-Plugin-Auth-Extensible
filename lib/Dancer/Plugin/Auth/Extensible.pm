@@ -197,11 +197,31 @@ consulted in turn.  If you only wish to check one of them (for instance, you're
 authenticating an admin user, and there's only one realm which applies to them),
 you can supply the realm as an optional third parameter.
 
+In boolean context, returns simply true or false; in list context, returns
+C<($success, $realm)>.
+
 =cut
 
 sub authenticate_user {
     my ($username, $password, $realm) = @_;
 
+    my @realms_to_check = $realm? ($realm) : (keys %{ $settings->{realms} });
+    
+    for my $realm (@realms_to_check) {
+        debug "Attempting to authenticate $username against realm $realm";
+        my $provider = auth_provider($realm);
+        if ($provider->authenticate_user) {
+            debug "$realm accepted user $username";
+            return wantarray ? (1, $realm) : 1;
+        }
+    }
+
+    # If we get to here, we failed to authenticate against any realm using the
+    # details provided. 
+    # TODO: allow providers to raise an exception if something failed, and catch
+    # that and do something appropriate, rather than just treating it as a
+    # failed login.
+    return wantarray ? (0, undef) : 0;
 }
 
 =back
