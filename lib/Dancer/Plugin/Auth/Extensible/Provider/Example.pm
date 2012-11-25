@@ -1,7 +1,7 @@
 package Dancer::Plugin::Auth::Extensible::Provider::Example;
 
 use strict;
-use base Dancer::Plugin::Auth::Extensible::Provider::Base;
+use base "Dancer::Plugin::Auth::Extensible::Provider::Base";
 
 # A more sensible provider would be likely to get this information from e.g. a
 # database (or LDAP, or...) rather than hardcoding it.  This, however, is an
@@ -53,10 +53,8 @@ authenticated, or false if not.
 
 sub authenticate_user {
     my ($self, $username, $password) = @_;
-
     my $user_details = $self->get_user_details($username) or return;
-
-    return $password eq $user_details->{password};
+    return $self->match_password($password, $user_details->{password});
 }
 
 =item get_user_details
