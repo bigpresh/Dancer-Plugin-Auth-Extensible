@@ -27,6 +27,10 @@ get '/roles' => sub :RequireLogin {
     return join ',', sort @{ user_roles() };
 };
 
+get '/realm' => sub :RequireLogin {
+    return session->{logged_in_user_realm};
+};
+
 get '/beer' => sub :RequireRole(BeerDrinker) {
     "You can have a beer";
 };
