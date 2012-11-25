@@ -6,7 +6,9 @@ log: core
 
 plugins:
     Auth::Extensible:
-            provider: Example
+        realms:
+            example:
+                provider: Example
 
 
 show_errors: 1
