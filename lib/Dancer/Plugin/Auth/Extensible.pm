@@ -419,8 +419,10 @@ if (!$settings->{no_default_pages}) {
 
 # Handle logging in...
 post '/login' => sub {
-    my $provider = auth_provider();
-    if (my $realm = authenticate_user(params->{username}, params->{password})) {
+    my ($success, $realm) = authenticate_user(
+        params->{username}, params->{password}
+    );
+    if ($success) {
         session logged_in_user => params->{username};
         session logged_in_user_realm => $realm;
         redirect params->{return_url} || '/';
