@@ -216,7 +216,7 @@ sub authenticate_user {
     for my $realm (@realms_to_check) {
         debug "Attempting to authenticate $username against realm $realm";
         my $provider = auth_provider($realm);
-        if ($provider->authenticate_user) {
+        if ($provider->authenticate_user($username, $password)) {
             debug "$realm accepted user $username";
             return wantarray ? (1, $realm) : 1;
         }
