@@ -19,6 +19,18 @@ our @EXPORT=qw(MODIFY_CODE_ATTRIBUTES FETCH_CODE_ATTRIBUTES);
 
 Dancer::Plugin::Auth::Extensible - extensible authentication framework for Dancer apps
 
+=head1 DESCRIPTION
+
+A user authentication and authorisation framework plugin for Dancer apps.
+
+Makes it easy to require a user to be logged in to access certain routes,
+provides role-based access control, and supports various authentication
+methods/sources (config file, database, Unix system users, etc).
+
+Designed to support multiple authentication realms and to be as extensible as
+possible.
+
+
 =head1 SYNOPSIS
 
 Configure the plugin to use the authentication provider class you wish to use:
