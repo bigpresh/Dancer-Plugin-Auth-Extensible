@@ -304,7 +304,7 @@ sub auth_provider {
 }
 
 register_hook qw(login_required permission_denied);
-register_plugin versions => qw(1 2);
+register_plugin for_versions => [qw(1 2)];
 
 # Hook to catch routes about to be executed, and check for attributes telling us
 # we need to make sure the user is auth'd
