@@ -41,6 +41,18 @@ The most basic configuration, assuming defaults for all options:
         Auth::Extensible:
             provider: 'Database'
 
+(You would still need to have provided suitable database connection details to
+L<Dancer::Plugin::Database>, of course;  see the docs for that plugin for full
+details, but it could be as simple as, e.g.:
+
+    plugins:
+        Auth::Extensible:
+            provider: 'Database'
+        Database:
+            driver: 'SQLite'
+            database: 'test.sqlite'
+
+
 A full example showing all options:
 
     plugins:
