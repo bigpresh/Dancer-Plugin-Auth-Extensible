@@ -28,7 +28,9 @@ provides role-based access control, and supports various authentication
 methods/sources (config file, database, Unix system users, etc).
 
 Designed to support multiple authentication realms and to be as extensible as
-possible.
+possible, and to make secure password handling easy (the base class for auth
+providers makes handling C<RFC2307>-style hashed passwords really simple, so you
+have no excuse for storing plain-text passwords).
 
 
 =head1 SYNOPSIS

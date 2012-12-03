@@ -43,7 +43,8 @@ In your app's C<config.yml>:
                             - Tester
 
 As you can see, you can define the usernames, passwords (please use crypted
-passwords, not plain text - see below), and the roles for each user (if you're
+passwords, RFC2307-style, not plain text (although plain text *is* supported,
+but really not a good idea), and the roles for each user (if you're
 not planning to use roles, omit the roles section from each user entirely).
 
 =cut
