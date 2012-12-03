@@ -314,6 +314,18 @@ register_plugin versions => qw(1 2);
 hook before => sub {
     my $route_handler = shift || return;
 
+    Dancer::Logger::debug("Entering DPAE before hook");
+    # First, ensure we have sane configuration - we can't do much otherwise!
+    if (!$settings || !ref $settings || !exists $settings->{realms}
+        || !ref $settings->{realms} eq 'ARRAY')
+    {
+        Dancer::Logger::error(
+            "Configuration error - configuration for " . __PACKAGE__
+            . " missing or invalid, please consult docs"
+        );
+        #return send_error("Authentication configuration error!");
+    }
+
     my $requires_login = get_attribs_by_type(
         'RequireLogin', $route_handler->code
     );
