@@ -90,7 +90,8 @@ A full example showing all options:
                     user_roles_user_id_column: 'user_id'
                     user_roles_role_id_column: 'roles_id'
 
-
+See the main L<Dancer::Plugin::Auth::Extensible> documentation for how to
+configure multiple authentication realms.
 
 =head1 SUGGESTED SCHEMA
 
