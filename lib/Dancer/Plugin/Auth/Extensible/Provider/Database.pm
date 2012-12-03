@@ -52,7 +52,7 @@ details, but it could be as simple as, e.g.:
         Auth::Extensible:
             realms:
                 users:
-                provider: 'Database'
+                    provider: 'Database'
         Database:
             driver: 'SQLite'
             database: 'test.sqlite'
@@ -64,31 +64,31 @@ A full example showing all options:
         Auth::Extensible:
             realms:
                 users:
-                provider: 'Database'
-                # optionally set DB connection name to use (see named 
-                # connections in Dancer::Plugin::Database docs)
-                db_connection_name: 'foo'
+                    provider: 'Database'
+                    # optionally set DB connection name to use (see named 
+                    # connections in Dancer::Plugin::Database docs)
+                    db_connection_name: 'foo'
 
-                # Optionally disable roles support, if you only want to check
-                # for successful logins but don't need to use role-based access:
-                disable_roles: 1
+                    # Optionally disable roles support, if you only want to check
+                    # for successful logins but don't need to use role-based access:
+                    disable_roles: 1
 
-                # optionally specify names of tables if they're not the defaults
-                # (defaults are 'users', 'roles' and 'user_roles')
-                users_table: 'users'
-                roles_table: 'roles'
-                user_roles_table: 'user_roles'
+                    # optionally specify names of tables if they're not the defaults
+                    # (defaults are 'users', 'roles' and 'user_roles')
+                    users_table: 'users'
+                    roles_table: 'roles'
+                    user_roles_table: 'user_roles'
 
-                # optionally set the column names (see the SUGGESTED SCHEMA
-                # section below for the default names; if you use them, they'll
-                # Just Work)
-                users_id_column: 'id'
-                users_username_column: 'username'
-                users_password_column: 'password'
-                roles_id_column: 'id'
-                roles_role_column: 'role'
-                user_roles_user_id_column: 'user_id'
-                user_roles_role_id_column: 'roles_id'
+                    # optionally set the column names (see the SUGGESTED SCHEMA
+                    # section below for the default names; if you use them, they'll
+                    # Just Work)
+                    users_id_column: 'id'
+                    users_username_column: 'username'
+                    users_password_column: 'password'
+                    roles_id_column: 'id'
+                    roles_role_column: 'role'
+                    user_roles_user_id_column: 'user_id'
+                    user_roles_role_id_column: 'roles_id'
 
 
 
