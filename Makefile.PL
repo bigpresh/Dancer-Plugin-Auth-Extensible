@@ -15,6 +15,7 @@ WriteMakefile(
         'Test::More' => 0,
         'Dancer'     => 1.3100,
         'Crypt::SaltedHash' => 0,
+        'YAML'       => 0, # for config files (TODO: make optional?)
         
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
