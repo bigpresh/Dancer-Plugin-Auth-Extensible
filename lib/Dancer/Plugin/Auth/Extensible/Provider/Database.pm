@@ -146,7 +146,7 @@ sub authenticate_user {
 
     my $settings = $self->realm_settings;
     my $password_column = $settings->{users_password_column} || 'password';
-    return $self->match_password($password, $user->{$password_column};
+    return $self->match_password($password, $user->{$password_column});
 }
 
 
