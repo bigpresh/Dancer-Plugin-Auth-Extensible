@@ -7,7 +7,7 @@ use Dancer::Plugin;
 use Dancer qw(:syntax);
 use Scalar::Util qw(refaddr);
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 my $settings = plugin_setting;
 
