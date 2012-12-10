@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use Dancer;
+use lib '../lib';
 use Dancer::Plugin::Auth::Extensible;
 
 get '/' => sub {
