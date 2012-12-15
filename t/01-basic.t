@@ -22,13 +22,14 @@ BEGIN {
 response_content_is   [ GET => '/' ], 'Index always accessible',
     'Index accessible while not logged in';
 
-
 response_redirect_location_is  [ GET => '/loggedin' ], 'http://localhost/login',
     '/loggedin redirected to login page when not logged in';
 
 response_redirect_location_is  [ GET => '/beer' ], 'http://localhost/login',
-'/beer redirected to login page when not logged in';
+    '/beer redirected to login page when not logged in';
 
+response_redirect_location_is  [ GET => '/regex/a' ], 'http://localhost/login',
+    '/regex/a redirected to login page when not logged in';
 
 # OK, now check we can't log in with fake details
 
@@ -62,6 +63,11 @@ response_content_is [ GET => '/roles' ], 'BeerDrinker,Motorcyclist',
 # Check we can request something which requires a role we have....
 response_status_is [ GET => '/beer' ], 200,
     'We can request a route requiring a role we have...';
+
+# And also a route declared as a regex (this should be no different, but
+# melmothX was seeing issues with routes not requiring login when they should...
+response_status_is [ GET => '/regex/a' ], 200,
+    "We can request a regex route when logged in";
 
 # ... but can't request something requiring a role we don't have
 response_redirect_location_is  [ GET => '/piss' ],

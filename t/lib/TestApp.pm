@@ -39,6 +39,9 @@ get '/piss' => sub :RequireRole(BearGrylls) {
     "You can drink piss";
 };
 
+get qr{/regex/(.+)} => sub :RequireLogin {
+    return "Matched";
+};
 
 
 1;
