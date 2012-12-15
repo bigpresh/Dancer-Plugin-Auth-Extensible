@@ -559,7 +559,10 @@ L<https://github.com/bigpresh/Dancer-Plugin-Auth-Extensible>
 
 =head1 ACKNOWLEDGEMENTS
 
-None yet - why not help out and get your name here? :)
+Valuable feedback on the early design of this module came from many people,
+including Matt S Trout (mst), David Golden (xdg), Damien Krotkine (dams),
+Daniel Perrett, and others.
+
 
 
 =head1 LICENSE AND COPYRIGHT
