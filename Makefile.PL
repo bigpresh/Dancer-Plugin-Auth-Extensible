@@ -20,4 +20,12 @@ WriteMakefile(
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Dancer-Plugin-Auth-Extensible-*' },
+    META_MERGE => {
+        resources => {
+            repository => 'https://github.com/bigpresh/Dancer-Plugin-Auth-Extensible',
+            bugtracker => 'https://github.com/bigpresh/Dancer-Plugin-Auth-Extensible/issues',
+            homepage   => 'https://github.com/bigpresh/Dancer-Plugin-Auth-Extensible/',
+        },
+    },
+
 );
