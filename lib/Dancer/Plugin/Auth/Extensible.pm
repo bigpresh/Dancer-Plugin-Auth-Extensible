@@ -323,7 +323,7 @@ hook before => sub {
             "Configuration error - configuration for " . __PACKAGE__
             . " missing or invalid, please consult docs"
         );
-        #return send_error("Authentication configuration error!");
+        return send_error("Authentication configuration error!");
     }
 
     my $requires_login = get_attribs_by_type(
