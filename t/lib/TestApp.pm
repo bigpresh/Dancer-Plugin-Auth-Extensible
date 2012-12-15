@@ -15,39 +15,39 @@ get '/' => sub {
     "Index always accessible";
 };
 
-get '/loggedin' => requires_login sub  {
+get '/loggedin' => require_login sub  {
     "You are logged in";
 };
 
-get '/name' => requires_login sub {
+get '/name' => require_login sub {
     return "Hello, " . logged_in_user->{name};
 };
 
-get '/roles' => requires_login sub {
+get '/roles' => require_login sub {
     return join ',', sort @{ user_roles() };
 };
 
-get '/realm' => requires_login sub {
+get '/realm' => require_login sub {
     return session->{logged_in_user_realm};
 };
 
-get '/beer' => requires_role BeerDrinker => sub {
+get '/beer' => require_role BeerDrinker => sub {
     "You can have a beer";
 };
 
-get '/piss' => requires_role BearGrylls => sub {
+get '/piss' => require_role BearGrylls => sub {
     "You can drink piss";
 };
 
-get '/anyrole' => requires_any_role ['Foo','BeerDrinker'] => sub {
+get '/anyrole' => require_any_role ['Foo','BeerDrinker'] => sub {
     "Matching one of multiple roles works";
 };
 
-get '/allroles' => requires_all_roles ['BeerDrinker', 'Motorcyclist'] => sub {
+get '/allroles' => require_all_roles ['BeerDrinker', 'Motorcyclist'] => sub {
     "Matching multiple required roles works";
 };
 
-get qr{/regex/(.+)} => requires_login sub {
+get qr{/regex/(.+)} => require_login sub {
     return "Matched";
 };
 
