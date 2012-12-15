@@ -39,6 +39,10 @@ get '/piss' => requires_role BearGrylls => sub {
     "You can drink piss";
 };
 
+get '/anyrole' => requires_role ['Foo','BeerDrinker'] => sub {
+    "Matching one of multiple roles works";
+};
+
 get qr{/regex/(.+)} => requires_login sub {
     return "Matched";
 };

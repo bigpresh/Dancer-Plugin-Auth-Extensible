@@ -160,6 +160,9 @@ sub requires_role {
     my $require_role = shift;
     my $coderef = shift;
 
+    my @acceptable_roles = ref $require_role eq 'ARRAY' 
+        ? @$require_role
+        : $require_role;
     return sub {
         my $user = logged_in_user();
         if (!$user) {
@@ -167,13 +170,14 @@ sub requires_role {
             # TODO: see if any code executed by that hook set up a response
             return redirect '/login';
         }
-        if (!user_has_role($require_role)) {
-            execute_hook('permission_denied', $coderef);
-            # TODO: see if any code executed by that hook set up a response
-            return redirect '/login/denied';
-        } else {
-            return $coderef->();
+        for my $role (@acceptable_roles) {
+            if (user_has_role($role)) {
+                return $coderef->();
+            }
         }
+        execute_hook('permission_denied', $coderef);
+        # TODO: see if any code executed by that hook set up a response
+        return redirect '/login/denied';
     };
 }
 
