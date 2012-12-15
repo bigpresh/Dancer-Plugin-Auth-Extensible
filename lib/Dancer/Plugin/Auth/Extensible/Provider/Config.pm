@@ -31,15 +31,15 @@ In your app's C<config.yml>:
                 config:
                     provider: Config
                     users:
-                        -user: dave
-                         pass: supersecret
-                         roles:
+                        - user: dave
+                          pass: supersecret
+                          roles:
                             - Developer
                             - Manager
                             - BeerDrinker
-                        -user: bob
-                         pass: '{SSHA}+2u1HpOU7ak6iBR6JlpICpAUvSpA/zBM'
-                         roles:
+                        - user: bob
+                          pass: '{SSHA}+2u1HpOU7ak6iBR6JlpICpAUvSpA/zBM'
+                          roles:
                             - Tester
 
 As you can see, you can define the usernames, passwords (please use crypted
