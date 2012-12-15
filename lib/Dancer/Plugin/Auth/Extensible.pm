@@ -48,12 +48,12 @@ L<Dancer::Plugin::Auth::Extensible::Provider::Config>.
 Define that a user must be logged in and have the proper permissions to 
 access a route:
 
-    get '/secret' => sub :RequireRole(Confidant) { tell_secrets(); };
+    get '/secret' => sub requires_role Confidant => sub { tell_secrets(); };
 
 Define that a user must be logged in to access a route - and find out who is
 logged in with the C<logged_in_user> keyword:
 
-    get '/users' => sub :RequireLogin {
+    get '/users' => requires_login sub {
         my $user = logged_in_user;
         return "Hi there, $user->{username}";
     };
@@ -82,24 +82,47 @@ This framework supplies the following providers out-of-the-box:
 
 =head1 CONTROLLING ACCESS TO ROUTES
 
-Subroutine attributes are used to indicate that a route requires a login, or a
-specific role.
+Keywords are provided to check if a user is logged in / has appropriate roles.
 
-Multiple roles can easily be provided as a space-separated list, for example:
+=over
 
-    get '/user/:user_id' => sub :RequireRole(Admin TeamLeader) {
-        ...
-    };
+=item require_login - require the user to be logged in
 
-(The user will be granted access if they have any of the roles denoted.)
-
-If you only care that the user be logged in, use the RequireLogin attribute
-instead:
-
-    get '/dashboard' => sub :RequireLogin { .... };
+    get '/dashboard' => require_login sub { .... };
 
 If the user is not logged in, they will be redirected to the login page URL to
 log in.  Currently, the URL is C</login> - this may be made configurable.
+
+=item require_role - require the user to have a specified role
+
+    get '/beer' => require_role BeerDrinker => sub { ... };
+
+Requires that the user be logged in as a user who has the specified role.  If
+the user is not logged in, they will be redirected to the login page URL.  If
+they are logged in, but do not have the required role, they will be redirected
+to the access denied URL.
+
+=item require_any_roles - require the user to have one of a list of roles
+
+    get '/drink' => require_any_role [qw(BeerDrinker VodaDrinker)] => sub {
+        ...
+    };
+
+Requires that the user be logged in as a user who has any one (or more) of the
+roles listed.  If the user is not logged in, they will be redirected to the
+login page URL.  If they are logged in, but do not have any of the specified
+roles, they will be redirected to the access denied URL.
+
+=item requires_all_roles - require the user to have all roles listed
+
+    get '/foo' => require_all_roles [qw(Foo Bar)] => sub { ... };
+
+Requires that the user be logged in as a user who has all of the roles listed.
+If the user is not logged in, they will be redirected to the login page URL.  If
+they are logged in but do not have all of the specified roles, they will be
+redirected to the access denied URL.
+
+=back
 
 =head2 Replacing the Default C< /login > and C< /login/denied > Routes
 
