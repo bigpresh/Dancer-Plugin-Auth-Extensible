@@ -62,7 +62,7 @@ response_content_is [ GET => '/roles' ], 'BeerDrinker,Motorcyclist',
 
 # Check we can request something which requires a role we have....
 response_status_is [ GET => '/beer' ], 200,
-    'We can request a route requiring a role we have...';
+    'We can request a route (/beer) requiring a role we have...';
 
 # And also a route declared as a regex (this should be no different, but
 # melmothX was seeing issues with routes not requiring login when they should...

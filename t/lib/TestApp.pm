@@ -15,31 +15,31 @@ get '/' => sub {
     "Index always accessible";
 };
 
-get '/loggedin' => sub :RequireLogin {
+get '/loggedin' => requires_login sub  {
     "You are logged in";
 };
 
-get '/name' => sub :RequireLogin {
+get '/name' => requires_login sub {
     return "Hello, " . logged_in_user->{name};
 };
 
-get '/roles' => sub :RequireLogin {
+get '/roles' => requires_login sub {
     return join ',', sort @{ user_roles() };
 };
 
-get '/realm' => sub :RequireLogin {
+get '/realm' => requires_login sub {
     return session->{logged_in_user_realm};
 };
 
-get '/beer' => sub :RequireRole(BeerDrinker) {
+get '/beer' => requires_role BeerDrinker => sub {
     "You can have a beer";
 };
 
-get '/piss' => sub :RequireRole(BearGrylls) {
+get '/piss' => requires_role BearGrylls => sub {
     "You can drink piss";
 };
 
-get qr{/regex/(.+)} => sub :RequireLogin {
+get qr{/regex/(.+)} => requires_login sub {
     return "Matched";
 };
 
