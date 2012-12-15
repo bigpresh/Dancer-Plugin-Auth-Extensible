@@ -48,7 +48,7 @@ L<Dancer::Plugin::Auth::Extensible::Provider::Config>.
 Define that a user must be logged in and have the proper permissions to 
 access a route:
 
-    get '/secret' => sub requires_role Confidant => sub { tell_secrets(); };
+    get '/secret' => sub require_role Confidant => sub { tell_secrets(); };
 
 Define that a user must be logged in to access a route - and find out who is
 logged in with the C<logged_in_user> keyword:
@@ -113,7 +113,7 @@ roles listed.  If the user is not logged in, they will be redirected to the
 login page URL.  If they are logged in, but do not have any of the specified
 roles, they will be redirected to the access denied URL.
 
-=item requires_all_roles - require the user to have all roles listed
+=item require_all_roles - require the user to have all roles listed
 
     get '/foo' => require_all_roles [qw(Foo Bar)] => sub { ... };
 
@@ -142,20 +142,20 @@ own.
 
 =over
 
-=item requires_login
+=item require_login
 
 Used to wrap a route which requires a user to be logged in order to access
 it.
 
-    get '/secret' => requires_login sub { .... };
+    get '/secret' => require_login sub { .... };
 
 =cut
 
-sub requires_login {
+sub require_login {
     my $coderef = shift;
     return sub {
         if (!$coderef || ref $coderef ne 'CODE') {
-            croak "Invalid requires_login usage, please see docs";
+            croak "Invalid require_login usage, please see docs";
         }
 
         my $user = logged_in_user();
@@ -168,51 +168,51 @@ sub requires_login {
     };
 }
 
-register requires_login => \&requires_login;
+register require_login => \&require_login;
 
-=item requires_role
+=item require_role
 
 Used to wrap a route which requires a user to be logged in as a user with the
 specified role in order to access it.
 
-    get '/beer' => requires_role BeerDrinker => sub { ... };
+    get '/beer' => require_role BeerDrinker => sub { ... };
 
 =cut
-sub requires_role {
+sub require_role {
     return _build_wrapper(@_, 'single');
 }
 
-register requires_role => \&requires_role;
+register require_role => \&require_role;
 
-=item requires_any_role
+=item require_any_role
 
 Used to wrap a route which requires a user to be logged in as a user with any
 one (or more) of the specified roles in order to access it.
 
-    get '/foo' => requires_any_role [qw(Foo Bar)] => sub { ... };
+    get '/foo' => require_any_role [qw(Foo Bar)] => sub { ... };
 
 =cut
 
-sub requires_any_role {
+sub require_any_role {
     return _build_wrapper(@_, 'any');
 }
 
-register requires_any_role => \&requires_any_role;
+register require_any_role => \&require_any_role;
 
-=item requires_all_roles
+=item require_all_roles
 
 Used to wrap a route which requires a user to be logged in as a user with all
 of the roles listed in order to access it.
 
-    get '/foo' => requires_all_roles [qw(Foo Bar)] => sub { ... };
+    get '/foo' => require_all_roles [qw(Foo Bar)] => sub { ... };
 
 =cut
 
-sub requires_all_roles {
+sub require_all_roles {
     return _build_wrapper(@_, 'all');
 }
 
-register requires_all_roles => \&requires_all_roles;
+register require_all_roles => \&require_all_roles;
 
 
 sub _build_wrapper {
