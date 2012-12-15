@@ -155,12 +155,49 @@ specified role in order to access it.
     get '/beer' => requires_role BeerDrinker => sub { ... };
 
 =cut
-
 sub requires_role {
+    return _build_wrapper(@_, 'single');
+}
+
+register requires_role => \&requires_role;
+
+=item requires_any_role
+
+Used to wrap a route which requires a user to be logged in as a user with any
+one (or more) of the specified roles in order to access it.
+
+    get '/foo' => requires_any_role [qw(Foo Bar)] => sub { ... };
+
+=cut
+
+sub requires_any_role {
+    return _build_wrapper(@_, 'any');
+}
+
+register requires_any_role => \&requires_any_role;
+
+=item requires_all_roles
+
+Used to wrap a route which requires a user to be logged in as a user with all
+of the roles listed in order to access it.
+
+    get '/foo' => requires_all_roles [qw(Foo Bar)] => sub { ... };
+
+=cut
+
+sub requires_all_roles {
+    return _build_wrapper(@_, 'all');
+}
+
+register requires_all_roles => \&requires_all_roles;
+
+
+sub _build_wrapper {
     my $require_role = shift;
     my $coderef = shift;
+    my $mode = shift;
 
-    my @acceptable_roles = ref $require_role eq 'ARRAY' 
+    my @role_list = ref $require_role eq 'ARRAY' 
         ? @$require_role
         : $require_role;
     return sub {
@@ -170,18 +207,34 @@ sub requires_role {
             # TODO: see if any code executed by that hook set up a response
             return redirect '/login';
         }
-        for my $role (@acceptable_roles) {
-            if (user_has_role($role)) {
-                return $coderef->();
+
+        my $role_match;
+        if ($mode eq 'single') {
+            $role_match++ if user_has_role($require_role);
+        } elsif ($mode eq 'any') {
+            my %role_ok = map { $_ => 1 } @role_list;
+            for (user_roles()) {
+                $role_match++ and last if $role_ok{$_};
+            }
+        } elsif ($mode eq 'all') {
+            $role_match++;
+            for my $role (@role_list) {
+                if (!user_has_role($role)) {
+                    $role_match = 0;
+                    last;
+                }
             }
         }
+
+        if ($role_match) {
+            return $coderef->();
+        }
+
         execute_hook('permission_denied', $coderef);
         # TODO: see if any code executed by that hook set up a response
         return redirect '/login/denied';
     };
 }
-
-register requires_role => \&requires_role;
 
 
 =item logged_in_user

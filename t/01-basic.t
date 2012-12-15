@@ -67,7 +67,11 @@ response_status_is [ GET => '/beer' ], 200,
 # Check we can request a route that requires any of a list of roles, one of
 # which we have:
 response_status_is [ GET => '/anyrole' ], 200,
-    "We can request a multi-role route with a role we have";
+    "We can request a multi-role route requiring with any one role";
+
+response_status_is [ GET => '/allroles' ], 200,
+    "We can request a multi-role route with all roles required";
+
 
 # And also a route declared as a regex (this should be no different, but
 # melmothX was seeing issues with routes not requiring login when they should...
