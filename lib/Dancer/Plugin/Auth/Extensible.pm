@@ -11,6 +11,10 @@ our $VERSION = '0.04';
 
 my $settings = plugin_setting;
 
+my $loginpage = $settings->{login_page} || '/login';
+my $logoutpage = $settings->{logout_page} || '/logout';
+my $deniedpage = $settings->{denied_page} || '/login/denied';
+
 # We must export these to the caller to allow them to use any attributes:
 use Exporter 'import';
 our @EXPORT=qw(MODIFY_CODE_ATTRIBUTES FETCH_CODE_ATTRIBUTES);
@@ -341,7 +345,7 @@ hook before => sub {
     if (!$user) {
         execute_hook('login_required', $route_handler);
         # TODO: check if code executed by that hook set up a response
-        return redirect '/login';
+        return redirect $loginpage;
     }
 
     # OK, we're logged in as someone; if no specific roles are required, that's
@@ -370,7 +374,7 @@ hook before => sub {
     );
 
     # TODO: see if a response is set
-    return redirect '/login/denied';
+    return redirect $deniedpage;
 };
 
 
@@ -441,18 +445,18 @@ sub _try_realms {
 
 # Set up routes to serve default pages, if desired
 if (!$settings->{no_default_pages}) {
-    get '/login' => sub {
+    get $loginpage => sub {
         status 401;
         return _default_login_page();
     };
-    get '/login/denied' => sub {
+    get $deniedpage => sub {
         status 403;
         return _default_permission_denied_page();
     };
 }
 
 # Handle logging in...
-post '/login' => sub {
+post $loginpage => sub {
     my ($success, $realm) = authenticate_user(
         params->{username}, params->{password}
     );
@@ -462,12 +466,12 @@ post '/login' => sub {
         redirect params->{return_url} || '/';
     } else {
         vars->{login_failed}++;
-        forward '/login', { login_failed => 1 }, { method => 'GET' };
+        forward $loginpage, { login_failed => 1 }, { method => 'GET' };
     }
 };
 
 # ... and logging out.
-any ['get','post'] => '/logout' => sub {
+any ['get','post'] => $logoutpage => sub {
     session->destroy;
     if (params->{return_url}) {
         redirect params->{return_url};
