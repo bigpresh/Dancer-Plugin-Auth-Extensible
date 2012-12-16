@@ -1,5 +1,17 @@
 Revision history for Dancer-Plugin-Auth-Extensible
 
+0.10    2012-12-15
+        [ ENHANCEMENTS ]
+        - WARNING: backwards incompatible change!
+          The original approach using subroutine attributes was pretty, but not
+          always reliable (particularly with regards to thread safety, or
+          running under the debugger or Devel::Cover etc).
+          Since this module is still in it's early life and not widely used,
+          I've refactored entirely, to use new requires_login / requires_role 
+          etc keywords, which wrap the provided coderef in a coderef which 
+          checks if the user is logged in / has the required role(s), before
+          running the route handler provided.
+
 0.04    2012-12-15
         [ BUG FIXES ]
         - Throw an error properly if not configured correctly - safer to refuse
