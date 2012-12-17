@@ -565,7 +565,7 @@ Valuable feedback on the early design of this module came from many people,
 including Matt S Trout (mst), David Golden (xdg), Damien Krotkine (dams),
 Daniel Perrett, and others.
 
-
+Configurable login/logout URLs added by Rene (hertell)
 
 =head1 LICENSE AND COPYRIGHT
 
