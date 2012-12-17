@@ -12,6 +12,10 @@ our $VERSION = '0.04';
 
 my $settings = plugin_setting;
 
+my $loginpage = $settings->{login_page} || '/login';
+my $logoutpage = $settings->{logout_page} || '/logout';
+my $deniedpage = $settings->{denied_page} || '/login/denied';
+
 =head1 NAME
 
 Dancer::Plugin::Auth::Extensible - extensible authentication framework for Dancer apps
@@ -447,8 +451,6 @@ register_hook qw(login_required permission_denied);
 register_plugin for_versions => [qw(1 2)];
 
 
-
-
 # Given a class method name and a set of parameters, try calling that class
 # method for each realm in turn, arranging for each to receive the configuration
 # defined for that realm, until one returns a non-undef, then return the realm which
@@ -471,18 +473,18 @@ sub _try_realms {
 
 # Set up routes to serve default pages, if desired
 if (!$settings->{no_default_pages}) {
-    get '/login' => sub {
+    get $loginpage => sub {
         status 401;
         return _default_login_page();
     };
-    get '/login/denied' => sub {
+    get $deniedpage => sub {
         status 403;
         return _default_permission_denied_page();
     };
 }
 
 # Handle logging in...
-post '/login' => sub {
+post $loginpage => sub {
     my ($success, $realm) = authenticate_user(
         params->{username}, params->{password}
     );
@@ -492,12 +494,12 @@ post '/login' => sub {
         redirect params->{return_url} || '/';
     } else {
         vars->{login_failed}++;
-        forward '/login', { login_failed => 1 }, { method => 'GET' };
+        forward $loginpage, { login_failed => 1 }, { method => 'GET' };
     }
 };
 
 # ... and logging out.
-any ['get','post'] => '/logout' => sub {
+any ['get','post'] => $logoutpage => sub {
     session->destroy;
     if (params->{return_url}) {
         redirect params->{return_url};
