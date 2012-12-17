@@ -1,5 +1,6 @@
 package Dancer::Plugin::Auth::Extensible::Provider::Base;
 
+use strict;
 use Crypt::SaltedHash;
 
 =head1 NAME

@@ -12,7 +12,10 @@ DESCRIPTION
     users, etc).
 
     Designed to support multiple authentication realms and to be as
-    extensible as possible.
+    extensible as possible, and to make secure password handling easy (the
+    base class for auth providers makes handling `RFC2307'-style hashed
+    passwords really simple, so you have no excuse for storing plain-text
+    passwords).
 
 SYNOPSIS
     Configure the plugin to use the authentication provider class you wish
@@ -27,17 +30,17 @@ SYNOPSIS
 
     The configuration you provide will depend on the authentication provider
     module in use. For a simple example, see
-    Dancer::Plugin::Auth:Extensible::Provider::Config.
+    Dancer::Plugin::Auth::Extensible::Provider::Config.
 
     Define that a user must be logged in and have the proper permissions to
     access a route:
 
-        get '/secret' => sub :RequireRole(Confidant) { tell_secrets(); };
+        get '/secret' => sub require_role Confidant => sub { tell_secrets(); };
 
     Define that a user must be logged in to access a route - and find out
     who is logged in with the `logged_in_user' keyword:
 
-        get '/users' => sub :RequireLogin {
+        get '/users' => requires_login sub {
             my $user = logged_in_user;
             return "Hi there, $user->{username}";
         };
@@ -58,26 +61,43 @@ AUTHENTICATION PROVIDERS
     Dancer::Plugin::Auth::Extensible::Provider::Config
 
 CONTROLLING ACCESS TO ROUTES
-    Subroutine attributes are used to indicate that a route requires a
-    login, or a specific role.
+    Keywords are provided to check if a user is logged in / has appropriate
+    roles.
 
-    Multiple roles can easily be provided as a space-separated list, for
-    example:
+    require_login - require the user to be logged in
+            get '/dashboard' => require_login sub { .... };
 
-        get '/user/:user_id' => sub :RequireRole(Admin TeamLeader) {
-            ...
-        };
+        If the user is not logged in, they will be redirected to the login
+        page URL to log in. Currently, the URL is `/login' - this may be
+        made configurable.
 
-    (The user will be granted access if they have any of the roles denoted.)
+    require_role - require the user to have a specified role
+            get '/beer' => require_role BeerDrinker => sub { ... };
 
-    If you only care that the user be logged in, use the RequireLogin
-    attribute instead:
+        Requires that the user be logged in as a user who has the specified
+        role. If the user is not logged in, they will be redirected to the
+        login page URL. If they are logged in, but do not have the required
+        role, they will be redirected to the access denied URL.
 
-        get '/dashboard' => sub :RequireLogin { .... };
+    require_any_roles - require the user to have one of a list of roles
+            get '/drink' => require_any_role [qw(BeerDrinker VodaDrinker)] => sub {
+                ...
+            };
 
-    If the user is not logged in, they will be redirected to the login page
-    URL to log in. Currently, the URL is `/login' - this may be made
-    configurable.
+        Requires that the user be logged in as a user who has any one (or
+        more) of the roles listed. If the user is not logged in, they will
+        be redirected to the login page URL. If they are logged in, but do
+        not have any of the specified roles, they will be redirected to the
+        access denied URL.
+
+    require_all_roles - require the user to have all roles listed
+            get '/foo' => require_all_roles [qw(Foo Bar)] => sub { ... };
+
+        Requires that the user be logged in as a user who has all of the
+        roles listed. If the user is not logged in, they will be redirected
+        to the login page URL. If they are logged in but do not have all of
+        the specified roles, they will be redirected to the access denied
+        URL.
 
   Replacing the Default ` /login ' and ` /login/denied ' Routes
     By default, the plugin adds a route to present a simple login form at
@@ -95,6 +115,30 @@ CONTROLLING ACCESS TO ROUTES
     creating your own.
 
   Keywords
+    require_login
+        Used to wrap a route which requires a user to be logged in order to
+        access it.
+
+            get '/secret' => require_login sub { .... };
+
+    require_role
+        Used to wrap a route which requires a user to be logged in as a user
+        with the specified role in order to access it.
+
+            get '/beer' => require_role BeerDrinker => sub { ... };
+
+    require_any_role
+        Used to wrap a route which requires a user to be logged in as a user
+        with any one (or more) of the specified roles in order to access it.
+
+            get '/foo' => require_any_role [qw(Foo Bar)] => sub { ... };
+
+    require_all_roles
+        Used to wrap a route which requires a user to be logged in as a user
+        with all of the roles listed in order to access it.
+
+            get '/foo' => require_all_roles [qw(Foo Bar)] => sub { ... };
+
     logged_in_user
         Returns a hashref of details of the currently logged-in user, if
         there is one.
@@ -176,7 +220,9 @@ BUGS / FEATURE REQUESTS
     https://github.com/bigpresh/Dancer-Plugin-Auth-Extensible
 
 ACKNOWLEDGEMENTS
-    None yet - why not help out and get your name here? :)
+    Valuable feedback on the early design of this module came from many
+    people, including Matt S Trout (mst), David Golden (xdg), Damien
+    Krotkine (dams), Daniel Perrett, and others.
 
 LICENSE AND COPYRIGHT
     Copyright 2012 David Precious.

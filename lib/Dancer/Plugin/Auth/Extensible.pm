@@ -3,6 +3,7 @@ package Dancer::Plugin::Auth::Extensible;
 use warnings;
 use strict;
 use attributes;
+use Carp;
 use Dancer::Plugin;
 use Dancer qw(:syntax);
 use Scalar::Util qw(refaddr);
@@ -10,10 +11,6 @@ use Scalar::Util qw(refaddr);
 our $VERSION = '0.04';
 
 my $settings = plugin_setting;
-
-# We must export these to the caller to allow them to use any attributes:
-use Exporter 'import';
-our @EXPORT=qw(MODIFY_CODE_ATTRIBUTES FETCH_CODE_ATTRIBUTES);
 
 =head1 NAME
 
@@ -51,12 +48,12 @@ L<Dancer::Plugin::Auth::Extensible::Provider::Config>.
 Define that a user must be logged in and have the proper permissions to 
 access a route:
 
-    get '/secret' => sub :RequireRole(Confidant) { tell_secrets(); };
+    get '/secret' => sub require_role Confidant => sub { tell_secrets(); };
 
 Define that a user must be logged in to access a route - and find out who is
 logged in with the C<logged_in_user> keyword:
 
-    get '/users' => sub :RequireLogin {
+    get '/users' => requires_login sub {
         my $user = logged_in_user;
         return "Hi there, $user->{username}";
     };
@@ -85,24 +82,47 @@ This framework supplies the following providers out-of-the-box:
 
 =head1 CONTROLLING ACCESS TO ROUTES
 
-Subroutine attributes are used to indicate that a route requires a login, or a
-specific role.
+Keywords are provided to check if a user is logged in / has appropriate roles.
 
-Multiple roles can easily be provided as a space-separated list, for example:
+=over
 
-    get '/user/:user_id' => sub :RequireRole(Admin TeamLeader) {
-        ...
-    };
+=item require_login - require the user to be logged in
 
-(The user will be granted access if they have any of the roles denoted.)
-
-If you only care that the user be logged in, use the RequireLogin attribute
-instead:
-
-    get '/dashboard' => sub :RequireLogin { .... };
+    get '/dashboard' => require_login sub { .... };
 
 If the user is not logged in, they will be redirected to the login page URL to
 log in.  Currently, the URL is C</login> - this may be made configurable.
+
+=item require_role - require the user to have a specified role
+
+    get '/beer' => require_role BeerDrinker => sub { ... };
+
+Requires that the user be logged in as a user who has the specified role.  If
+the user is not logged in, they will be redirected to the login page URL.  If
+they are logged in, but do not have the required role, they will be redirected
+to the access denied URL.
+
+=item require_any_roles - require the user to have one of a list of roles
+
+    get '/drink' => require_any_role [qw(BeerDrinker VodaDrinker)] => sub {
+        ...
+    };
+
+Requires that the user be logged in as a user who has any one (or more) of the
+roles listed.  If the user is not logged in, they will be redirected to the
+login page URL.  If they are logged in, but do not have any of the specified
+roles, they will be redirected to the access denied URL.
+
+=item require_all_roles - require the user to have all roles listed
+
+    get '/foo' => require_all_roles [qw(Foo Bar)] => sub { ... };
+
+Requires that the user be logged in as a user who has all of the roles listed.
+If the user is not logged in, they will be redirected to the login page URL.  If
+they are logged in but do not have all of the specified roles, they will be
+redirected to the access denied URL.
+
+=back
 
 =head2 Replacing the Default C< /login > and C< /login/denied > Routes
 
@@ -121,6 +141,124 @@ own.
 =head2 Keywords
 
 =over
+
+=item require_login
+
+Used to wrap a route which requires a user to be logged in order to access
+it.
+
+    get '/secret' => require_login sub { .... };
+
+=cut
+
+sub require_login {
+    my $coderef = shift;
+    return sub {
+        if (!$coderef || ref $coderef ne 'CODE') {
+            croak "Invalid require_login usage, please see docs";
+        }
+
+        my $user = logged_in_user();
+        if (!$user) {
+            execute_hook('login_required', $coderef);
+            # TODO: see if any code executed by that hook set up a response
+            return redirect '/login';
+        }
+        return $coderef->();
+    };
+}
+
+register require_login => \&require_login;
+
+=item require_role
+
+Used to wrap a route which requires a user to be logged in as a user with the
+specified role in order to access it.
+
+    get '/beer' => require_role BeerDrinker => sub { ... };
+
+=cut
+sub require_role {
+    return _build_wrapper(@_, 'single');
+}
+
+register require_role => \&require_role;
+
+=item require_any_role
+
+Used to wrap a route which requires a user to be logged in as a user with any
+one (or more) of the specified roles in order to access it.
+
+    get '/foo' => require_any_role [qw(Foo Bar)] => sub { ... };
+
+=cut
+
+sub require_any_role {
+    return _build_wrapper(@_, 'any');
+}
+
+register require_any_role => \&require_any_role;
+
+=item require_all_roles
+
+Used to wrap a route which requires a user to be logged in as a user with all
+of the roles listed in order to access it.
+
+    get '/foo' => require_all_roles [qw(Foo Bar)] => sub { ... };
+
+=cut
+
+sub require_all_roles {
+    return _build_wrapper(@_, 'all');
+}
+
+register require_all_roles => \&require_all_roles;
+
+
+sub _build_wrapper {
+    my $require_role = shift;
+    my $coderef = shift;
+    my $mode = shift;
+
+    my @role_list = ref $require_role eq 'ARRAY' 
+        ? @$require_role
+        : $require_role;
+    return sub {
+        my $user = logged_in_user();
+        if (!$user) {
+            execute_hook('login_required', $coderef);
+            # TODO: see if any code executed by that hook set up a response
+            return redirect '/login';
+        }
+
+        my $role_match;
+        if ($mode eq 'single') {
+            $role_match++ if user_has_role($require_role);
+        } elsif ($mode eq 'any') {
+            my %role_ok = map { $_ => 1 } @role_list;
+            for (user_roles()) {
+                $role_match++ and last if $role_ok{$_};
+            }
+        } elsif ($mode eq 'all') {
+            $role_match++;
+            for my $role (@role_list) {
+                if (!user_has_role($role)) {
+                    $role_match = 0;
+                    last;
+                }
+            }
+        }
+
+        if ($role_match) {
+            return $coderef->();
+        }
+
+        execute_hook('permission_denied', $coderef);
+        # TODO: see if any code executed by that hook set up a response
+        return redirect '/login/denied';
+    };
+}
+
 
 =item logged_in_user
 
@@ -308,116 +446,8 @@ sub auth_provider {
 register_hook qw(login_required permission_denied);
 register_plugin for_versions => [qw(1 2)];
 
-# Hook to catch routes about to be executed, and check for attributes telling us
-# we need to make sure the user is auth'd
-
-hook before => sub {
-    my $route_handler = shift || return;
-
-    Dancer::Logger::debug("Entering DPAE before hook");
-    # First, ensure we have sane configuration - we can't do much otherwise!
-    if (!$settings || !ref $settings || !exists $settings->{realms}
-        || !ref $settings->{realms} eq 'ARRAY')
-    {
-        Dancer::Logger::error(
-            "Configuration error - configuration for " . __PACKAGE__
-            . " missing or invalid, please consult docs"
-        );
-        return send_error("Authentication configuration error!");
-    }
-
-    my $requires_login = get_attribs_by_type(
-        'RequireLogin', $route_handler->code
-    );
-    my $roles_required = get_attribs_by_type(
-        'RequireRole', $route_handler->code
-    );
-    
-    # If we don't need to be logged in for this route, we need do no more:
-    return if (!defined($requires_login) && !defined($roles_required));
-
-    my $user = logged_in_user();
-    
-    if (!$user) {
-        execute_hook('login_required', $route_handler);
-        # TODO: check if code executed by that hook set up a response
-        return redirect '/login';
-    }
-
-    # OK, we're logged in as someone; if no specific roles are required, that's
-    # the end of the checking needed
-    return unless defined $roles_required;
-
-    # OK, find out what roles this user has; if they have one of the roles we're
-    # looking for, they're OK
-    my $realm = session 'logged_in_user_realm';
-    my $user_roles = auth_provider($realm)->get_user_roles(
-        session 'logged_in_user'
-    );
-
-    my %acceptable_role = map { $_ => 1 } @$roles_required;
-
-    for my $user_role (@$user_roles) {
-        if ($acceptable_role{$user_role}) {
-            return;
-        }
-    }
-
-    execute_hook(
-        'permission_denied',
-        $route_handler,
-        $roles_required
-    );
-
-    # TODO: see if a response is set
-    return redirect '/login/denied';
-};
 
 
-
-
-# Boilerplate to support attribute setting & fetching
-my %attrs;
-sub MODIFY_CODE_ATTRIBUTES {
-    my ($package, $subref, @attrs) = @_;
-    $attrs{ refaddr $subref } = \@attrs;
-    return;
-} 
-sub FETCH_CODE_ATTRIBUTES {
-    my ($package, $subref) = @_;
-    my $attrs = $attrs{ refaddr $subref };
-    return $attrs ? @$attrs : ();
-}
-
-sub get_attribs_by_type {
-    my ($type, $coderef) = @_;
-    return unless $coderef;
-
-    # This voodoo was originally written by an evil bad man with a big beard;
-    # I simply embraced and extended it, whilst midly fearing for my life.
-    # Thus, blame him, not me.
-
-    my @desired_attribs = grep { 
-        /^$type(?:\([^)]*\))?$/ 
-    } attributes::get($coderef);
-    
-    return if !@desired_attribs;
-
-    # OK, we matched an attribute above; it might have been on its own (e.g. 
-    # "LoginNeeded") or it might contain a list of values we need to return
-    # (e.g. RequireRole(Foo Bar Baz)).
-    # So, an empty arrayref is fine to return; it indicates we found the
-    # desired attribute, but it had no values within parens.
-    return [
-        map {
-            my $f = $_;
-            # extract and split a white-space-delimited list wrapped in
-            # parens with optional leading/trailing shitespace
-            $f =~ s/^$type\(\s*([^)]*)\s*\)$/$1/;
-            split(/\s+/, $f);
-        } @desired_attribs
-    ];
-}
 
 # Given a class method name and a set of parameters, try calling that class
 # method for each realm in turn, arranging for each to receive the configuration
@@ -529,7 +559,10 @@ L<https://github.com/bigpresh/Dancer-Plugin-Auth-Extensible>
 
 =head1 ACKNOWLEDGEMENTS
 
-None yet - why not help out and get your name here? :)
+Valuable feedback on the early design of this module came from many people,
+including Matt S Trout (mst), David Golden (xdg), Damien Krotkine (dams),
+Daniel Perrett, and others.
+
 
 
 =head1 LICENSE AND COPYRIGHT
