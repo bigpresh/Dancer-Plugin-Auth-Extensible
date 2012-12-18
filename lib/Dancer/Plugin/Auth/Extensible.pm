@@ -57,7 +57,7 @@ access a route:
 Define that a user must be logged in to access a route - and find out who is
 logged in with the C<logged_in_user> keyword:
 
-    get '/users' => requires_login sub {
+    get '/users' => require_login sub {
         my $user = logged_in_user;
         return "Hi there, $user->{username}";
     };
