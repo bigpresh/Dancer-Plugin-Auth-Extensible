@@ -12,11 +12,18 @@ plugins:
             config:
                 provider: Config
                 users:
-                    - user: 'configuser'
+                    - user: 'beerdrinker'
                       pass: 'password'
-                      name: 'Example user'
+                      name: 'Beer drinker'
                       roles:
-                        - TestPerson
+                        - BeerDrinker
+                    - user: 'vodkadrinker'
+                      pass: 'password'
+                      name: 'Vodka drinker'
+                      roles:
+                        - VodkaDrinker
+
+
 
 
 show_errors: 1
