@@ -172,7 +172,8 @@ sub require_login {
     };
 }
 
-register require_login => \&require_login;
+register require_login  => \&require_login;
+register requires_login => \&require_login;
 
 =item require_role
 
@@ -186,7 +187,8 @@ sub require_role {
     return _build_wrapper(@_, 'single');
 }
 
-register require_role => \&require_role;
+register require_role  => \&require_role;
+register requires_role => \&require_role;
 
 =item require_any_role
 
@@ -201,7 +203,8 @@ sub require_any_role {
     return _build_wrapper(@_, 'any');
 }
 
-register require_any_role => \&require_any_role;
+register require_any_role  => \&require_any_role;
+register requires_any_role => \&require_any_role;
 
 =item require_all_roles
 
@@ -216,7 +219,8 @@ sub require_all_roles {
     return _build_wrapper(@_, 'all');
 }
 
-register require_all_roles => \&require_all_roles;
+register require_all_roles  => \&require_all_roles;
+register requires_all_roles => \&require_all_roles;
 
 
 sub _build_wrapper {
