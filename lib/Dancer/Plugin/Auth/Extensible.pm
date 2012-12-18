@@ -16,6 +16,21 @@ my $loginpage = $settings->{login_page} || '/login';
 my $logoutpage = $settings->{logout_page} || '/logout';
 my $deniedpage = $settings->{denied_page} || '/login/denied';
 
+
+Dancer::Logger::warning(<<CHANGEWARNING);
+
+***************************************************************************
+* IMPORTANT NOTE: Dancer::Plugin::Auth::Extensible $VERSION                   *
+*                                                                         *
+* This version of DPAE contains backwards-incompatible API changes,       *
+* replacing the subroutine-attributes based approach of previous versions *
+* with new keywords.                                                      *
+*                                                                         *
+* Please see http://advent.perldancer.org/2012/16 for details.            *
+***************************************************************************
+
+CHANGEWARNING
+
 =head1 NAME
 
 Dancer::Plugin::Auth::Extensible - extensible authentication framework for Dancer apps
