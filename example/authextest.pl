@@ -9,7 +9,7 @@ get '/' => sub {
     if (my $user = logged_in_user()) {
         $content .= "<p>Hi there, $user->{name}!</p>";
     } else {
-        $content .= "<p>Why not log in?</p>";
+        $content .= "<p>Why not <a href=\"/login\">log in</a>?</p>";
     }
 
     $content .= <<LINKS;
@@ -28,7 +28,7 @@ LINKS
     return $content;
 };
 
-get '/secret' => require_login sub { "Need to be logged in" };
+get '/secret' => require_login sub { "Only logged-in users can see this" };
 
 get '/beer' => require_any_role [qw(BeerDrinker HardDrinker)], sub {
     "Any drinker can get beer.";
