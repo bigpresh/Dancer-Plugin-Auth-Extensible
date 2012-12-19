@@ -81,7 +81,7 @@ logged in with the C<logged_in_user> keyword:
 
 For flexibility, this authentication framework uses simple authentication
 provider classes, which implement a simple interface and do whatever is required
-to authenticate a user.
+to authenticate a user against the chosen source of authentication.
 
 For an example of how simple provider classes are, so you can build your own if
 required or just try out this authentication framework plugin easily, 
@@ -93,11 +93,21 @@ This framework supplies the following providers out-of-the-box:
 
 =item L<Dancer::Plugin::Auth::Extensible::Provider::Unix>
 
+Authenticates users using system accounts on Linux/Unix type boxes
+
 =item L<Dancer::Plugin::Auth::Extensible::Provider::Database>
+
+Authenticates users stored in a database table
 
 =item L<Dancer::Plugin::Auth::Extensible::Provider::Config>
 
+Authenticates users stored in the app's config
+
 =back
+
+Need to write your own?  Just subclass
+L<Dancer::Plugin::Auth::Extensible::Provider::Base> and implement the required
+methods, and you're good to go!
 
 =head1 CONTROLLING ACCESS TO ROUTES
 
@@ -181,7 +191,7 @@ sub require_login {
         if (!$user) {
             execute_hook('login_required', $coderef);
             # TODO: see if any code executed by that hook set up a response
-            return redirect $loginpage;
+            return redirect uri_for($loginpage, { return_url => request->path });
         }
         return $coderef->();
     };
