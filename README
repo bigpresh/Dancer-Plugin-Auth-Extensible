@@ -40,7 +40,7 @@ SYNOPSIS
     Define that a user must be logged in to access a route - and find out
     who is logged in with the `logged_in_user' keyword:
 
-        get '/users' => requires_login sub {
+        get '/users' => require_login sub {
             my $user = logged_in_user;
             return "Hi there, $user->{username}";
         };
@@ -223,6 +223,8 @@ ACKNOWLEDGEMENTS
     Valuable feedback on the early design of this module came from many
     people, including Matt S Trout (mst), David Golden (xdg), Damien
     Krotkine (dams), Daniel Perrett, and others.
+
+    Configurable login/logout URLs added by Rene (hertell)
 
 LICENSE AND COPYRIGHT
     Copyright 2012 David Precious.
