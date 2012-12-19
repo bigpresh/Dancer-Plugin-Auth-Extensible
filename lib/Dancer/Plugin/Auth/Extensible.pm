@@ -181,7 +181,7 @@ sub require_login {
         if (!$user) {
             execute_hook('login_required', $coderef);
             # TODO: see if any code executed by that hook set up a response
-            return redirect '/login';
+            return redirect $loginpage;
         }
         return $coderef->();
     };
@@ -251,7 +251,7 @@ sub _build_wrapper {
         if (!$user) {
             execute_hook('login_required', $coderef);
             # TODO: see if any code executed by that hook set up a response
-            return redirect '/login';
+            return redirect $loginpage;
         }
 
         my $role_match;
@@ -278,7 +278,7 @@ sub _build_wrapper {
 
         execute_hook('permission_denied', $coderef);
         # TODO: see if any code executed by that hook set up a response
-        return redirect '/login/denied';
+        return redirect $deniedpage;
     };
 }
 
