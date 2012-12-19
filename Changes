@@ -1,6 +1,6 @@
 Revision history for Dancer-Plugin-Auth-Extensible
 
-0.10    2012-12-15
+0.10    2012-12-19
         [ ENHANCEMENTS ]
         - WARNING: backwards incompatible change!
           The original approach using subroutine attributes was pretty, but not
