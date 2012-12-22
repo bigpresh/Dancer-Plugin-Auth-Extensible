@@ -261,7 +261,7 @@ sub _build_wrapper {
         if (!$user) {
             execute_hook('login_required', $coderef);
             # TODO: see if any code executed by that hook set up a response
-            return redirect $loginpage;
+            return redirect $loginpage, { return_url => request->path };
         }
 
         my $role_match;
@@ -553,6 +553,7 @@ sub _default_login_page {
     my $login_fail_message = vars->{login_failed}
         ? "<p>LOGIN FAILED</p>"
         : "";
+    my $return_url = params->{return_url} || '';
     return <<PAGE;
 <h1>Login Required</h1>
 
@@ -569,6 +570,7 @@ $login_fail_message
 <label for="password">Password:</label>
 <input type="password" name="password" id="password">
 <br />
+<input type="hidden" name="return_url" value="$return_url">
 <input type="submit" value="Login">
 </form>
 PAGE
