@@ -22,13 +22,16 @@ BEGIN {
 response_content_is   [ GET => '/' ], 'Index always accessible',
     'Index accessible while not logged in';
 
-response_redirect_location_is  [ GET => '/loggedin' ], 'http://localhost/login',
+response_redirect_location_is  [ GET => '/loggedin' ], 
+    'http://localhost/login?return_url=%2Floggedin',
     '/loggedin redirected to login page when not logged in';
 
-response_redirect_location_is  [ GET => '/beer' ], 'http://localhost/login',
+response_redirect_location_is  [ GET => '/beer' ],
+    'http://localhost/login?return_url=%2Fbeer',
     '/beer redirected to login page when not logged in';
 
-response_redirect_location_is  [ GET => '/regex/a' ], 'http://localhost/login',
+response_redirect_location_is  [ GET => '/regex/a' ], 
+    'http://localhost/login?return_url=%2Fregex%2Fa',
     '/regex/a redirected to login page when not logged in';
 
 # OK, now check we can't log in with fake details
@@ -80,7 +83,7 @@ response_status_is [ GET => '/regex/a' ], 200,
 
 # ... but can't request something requiring a role we don't have
 response_redirect_location_is  [ GET => '/piss' ],
-    'http://localhost/login/denied',
+    'http://localhost/login/denied?return_url=%2Fpiss',
     "We cannot request a route requiring a role we don't have";
 
 # Check the realm we authenticated against is what we expect
@@ -94,11 +97,13 @@ response_status_is [
 
 
 # Check we can't access protected pages now we logged out:
-response_redirect_location_is  [ GET => '/loggedin' ], 'http://localhost/login',
+response_redirect_location_is  [ GET => '/loggedin' ],
+    'http://localhost/login?return_url=%2Floggedin',
     '/loggedin redirected to login page after logging out';
 
-response_redirect_location_is  [ GET => '/beer' ], 'http://localhost/login',
-'/beer redirected to login page after logging out';
+response_redirect_location_is  [ GET => '/beer' ], 
+    'http://localhost/login?return_url=%2Fbeer',
+    '/beer redirected to login page after logging out';
 
 # OK, log back in, this time as a user from the second realm
 response_status_is [
