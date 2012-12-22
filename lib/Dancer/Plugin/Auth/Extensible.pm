@@ -261,7 +261,7 @@ sub _build_wrapper {
         if (!$user) {
             execute_hook('login_required', $coderef);
             # TODO: see if any code executed by that hook set up a response
-            return redirect $loginpage, { return_url => request->path };
+            return redirect uri_for($loginpage, { return_url => request->path });
         }
 
         my $role_match;
@@ -288,7 +288,7 @@ sub _build_wrapper {
 
         execute_hook('permission_denied', $coderef);
         # TODO: see if any code executed by that hook set up a response
-        return redirect $deniedpage;
+        return redirect uri_for($deniedpage, { return_url => request->path });
     };
 }
 
