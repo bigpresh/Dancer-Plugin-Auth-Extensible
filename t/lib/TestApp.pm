@@ -39,7 +39,7 @@ get '/piss' => require_role BearGrylls => sub {
     "You can drink piss";
 };
 
-get '/piss/regex' => require_regex_role qr/beer/i => sub {
+get '/piss/regex' => require_role qr/beer/i => sub {
     "You can drink piss now";
 };
 

@@ -231,22 +231,6 @@ sub require_any_role {
 register require_any_role  => \&require_any_role;
 register requires_any_role => \&require_any_role;
 
-=item require_regex_role
-
-Used to wrap a route which requires a user to be logged in as a user with a
-regex matched roles in order to access it.
-
-    get '/foo' => require_regex_role qr/(video|film)user/i => sub { ... };
-
-=cut
-
-sub require_regex_role {
-    return _build_wrapper(@_, 'regex');
-}
-
-register require_regex_role  => \&require_regex_role;
-register requires_regex_role => \&require_regex_role;
-
 =item require_all_roles
 
 Used to wrap a route which requires a user to be logged in as a user with all
@@ -282,7 +266,9 @@ sub _build_wrapper {
 
         my $role_match;
         if ($mode eq 'single') {
-            $role_match++ if user_has_role($require_role);
+            for (user_roles()) {
+                $role_match++ and last if $_ ~~ $require_role;
+            }
         } elsif ($mode eq 'any') {
             my %role_ok = map { $_ => 1 } @role_list;
             for (user_roles()) {
@@ -295,10 +281,6 @@ sub _build_wrapper {
                     $role_match = 0;
                     last;
                 }
-            }
-        } elsif ($mode eq 'regex') {
-            for (user_roles()) {
-                $role_match++ and last if $_ ~~ $require_role;
             }
         }
 
