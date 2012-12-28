@@ -81,6 +81,9 @@ response_status_is [ GET => '/allroles' ], 200,
 response_status_is [ GET => '/regex/a' ], 200,
     "We can request a regex route when logged in";
 
+response_status_is [ GET => '/piss/regex' ], 200,
+    "We can request a route requiring a regex role we have";
+
 # ... but can't request something requiring a role we don't have
 response_redirect_location_is  [ GET => '/piss' ],
     'http://localhost/login/denied?return_url=%2Fpiss',
