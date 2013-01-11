@@ -207,6 +207,11 @@ specified role in order to access it.
 
     get '/beer' => require_role BeerDrinker => sub { ... };
 
+You can also provide a regular expression, if you need to match the role using a
+regex - for example:
+
+    get '/beer' => require_role qr/Drinker$/ => sub { ... };
+
 =cut
 sub require_role {
     return _build_wrapper(@_, 'single');
