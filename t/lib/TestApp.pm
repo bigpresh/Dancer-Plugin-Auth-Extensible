@@ -39,6 +39,10 @@ get '/piss' => require_role BearGrylls => sub {
     "You can drink piss";
 };
 
+get '/piss/regex' => require_role qr/beer/i => sub {
+    "You can drink piss now";
+};
+
 get '/anyrole' => require_any_role ['Foo','BeerDrinker'] => sub {
     "Matching one of multiple roles works";
 };

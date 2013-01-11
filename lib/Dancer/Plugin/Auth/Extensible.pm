@@ -266,7 +266,9 @@ sub _build_wrapper {
 
         my $role_match;
         if ($mode eq 'single') {
-            $role_match++ if user_has_role($require_role);
+            for (user_roles()) {
+                $role_match++ and last if $_ ~~ $require_role;
+            }
         } elsif ($mode eq 'any') {
             my %role_ok = map { $_ => 1 } @role_list;
             for (user_roles()) {
