@@ -4,6 +4,8 @@ Revision history for Dancer-Plugin-Auth-Extensible
         [ ENHANCEMENTS ]
         - Use return_url to redirect back to requested page after logging in
           (GH #14, thanks to @dagolden)
+        - require_role can now take a regex to match (GH #16, thanks to
+          @chenryn)
 
 0.10    2012-12-19
         [ ENHANCEMENTS ]
