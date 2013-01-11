@@ -605,6 +605,8 @@ Daniel Perrett, and others.
 
 Configurable login/logout URLs added by Rene (hertell)
 
+Regex support for require_role by chenryn
+
 =head1 LICENSE AND COPYRIGHT
 
 Copyright 2012 David Precious.
