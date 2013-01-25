@@ -120,7 +120,8 @@ Keywords are provided to check if a user is logged in / has appropriate roles.
     get '/dashboard' => require_login sub { .... };
 
 If the user is not logged in, they will be redirected to the login page URL to
-log in.  Currently, the URL is C</login> - this may be made configurable.
+log in.  The default URL is C</login> - this may be changed with the
+C<login_url> option.
 
 =item require_role - require the user to have a specified role
 
@@ -161,7 +162,8 @@ value, and define your own route which responds to C</login> with a login page.
 
 If the user is logged in, but tries to access a route which requires a specific
 role they don't have, they will be redirected to the "permission denied" page
-URL, which is C</login/denied> - this may be made configurable later.
+URL, which defaults to C</login/denied> but may be changed using the
+C<denied_page> option.
 
 Again, by default a route is added to respond to that URL with a default page;
 again, you can disable this by setting C<no_default_pages> and creating your
