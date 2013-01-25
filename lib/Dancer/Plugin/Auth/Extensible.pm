@@ -67,7 +67,7 @@ L<Dancer::Plugin::Auth::Extensible::Provider::Config>.
 Define that a user must be logged in and have the proper permissions to 
 access a route:
 
-    get '/secret' => sub require_role Confidant => sub { tell_secrets(); };
+    get '/secret' => require_role Confidant => sub { tell_secrets(); };
 
 Define that a user must be logged in to access a route - and find out who is
 logged in with the C<logged_in_user> keyword:
