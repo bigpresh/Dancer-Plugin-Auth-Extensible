@@ -35,7 +35,7 @@ SYNOPSIS
     Define that a user must be logged in and have the proper permissions to
     access a route:
 
-        get '/secret' => sub require_role Confidant => sub { tell_secrets(); };
+        get '/secret' => require_role Confidant => sub { tell_secrets(); };
 
     Define that a user must be logged in to access a route - and find out
     who is logged in with the `logged_in_user' keyword:
@@ -48,7 +48,8 @@ SYNOPSIS
 AUTHENTICATION PROVIDERS
     For flexibility, this authentication framework uses simple
     authentication provider classes, which implement a simple interface and
-    do whatever is required to authenticate a user.
+    do whatever is required to authenticate a user against the chosen source
+    of authentication.
 
     For an example of how simple provider classes are, so you can build your
     own if required or just try out this authentication framework plugin
@@ -57,8 +58,17 @@ AUTHENTICATION PROVIDERS
     This framework supplies the following providers out-of-the-box:
 
     Dancer::Plugin::Auth::Extensible::Provider::Unix
+        Authenticates users using system accounts on Linux/Unix type boxes
+
     Dancer::Plugin::Auth::Extensible::Provider::Database
+        Authenticates users stored in a database table
+
     Dancer::Plugin::Auth::Extensible::Provider::Config
+        Authenticates users stored in the app's config
+
+    Need to write your own? Just subclass
+    Dancer::Plugin::Auth::Extensible::Provider::Base and implement the
+    required methods, and you're good to go!
 
 CONTROLLING ACCESS TO ROUTES
     Keywords are provided to check if a user is logged in / has appropriate
@@ -126,6 +136,11 @@ CONTROLLING ACCESS TO ROUTES
         with the specified role in order to access it.
 
             get '/beer' => require_role BeerDrinker => sub { ... };
+
+        You can also provide a regular expression, if you need to match the
+        role using a regex - for example:
+
+            get '/beer' => require_role qr/Drinker$/ => sub { ... };
 
     require_any_role
         Used to wrap a route which requires a user to be logged in as a user
@@ -225,6 +240,8 @@ ACKNOWLEDGEMENTS
     Krotkine (dams), Daniel Perrett, and others.
 
     Configurable login/logout URLs added by Rene (hertell)
+
+    Regex support for require_role by chenryn
 
 LICENSE AND COPYRIGHT
     Copyright 2012 David Precious.
