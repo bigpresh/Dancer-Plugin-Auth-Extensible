@@ -110,7 +110,7 @@ something like:
     CREATE TABLE users (
         id       INTEGER     AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(32) NOT NULL       UNIQUE KEY,
-        password VARCHAR(32) NOT NULL
+        password VARCHAR(40) NOT NULL
     );
 
 You will quite likely want other fields to store e.g. the user's name, email
