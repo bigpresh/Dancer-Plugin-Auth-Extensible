@@ -424,6 +424,9 @@ sub authenticate_user {
     return wantarray ? (0, undef) : 0;
 }
 
+register authenticate_user => \&authenticate_user;
+
+
 =back
 
 =head2 SAMPLE CONFIGURATION
