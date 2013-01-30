@@ -78,8 +78,8 @@ CONTROLLING ACCESS TO ROUTES
             get '/dashboard' => require_login sub { .... };
 
         If the user is not logged in, they will be redirected to the login
-        page URL to log in. Currently, the URL is `/login' - this may be
-        made configurable.
+        page URL to log in. The default URL is `/login' - this may be
+        changed with the `login_url' option.
 
     require_role - require the user to have a specified role
             get '/beer' => require_role BeerDrinker => sub { ... };
@@ -117,8 +117,8 @@ CONTROLLING ACCESS TO ROUTES
 
     If the user is logged in, but tries to access a route which requires a
     specific role they don't have, they will be redirected to the
-    "permission denied" page URL, which is `/login/denied' - this may be
-    made configurable later.
+    "permission denied" page URL, which defaults to `/login/denied' but may
+    be changed using the `denied_page' option.
 
     Again, by default a route is added to respond to that URL with a default
     page; again, you can disable this by setting `no_default_pages' and
