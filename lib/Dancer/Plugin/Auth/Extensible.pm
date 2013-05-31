@@ -2,11 +2,10 @@ package Dancer::Plugin::Auth::Extensible;
 
 use warnings;
 use strict;
-use attributes;
+
 use Carp;
 use Dancer::Plugin;
 use Dancer qw(:syntax);
-use Scalar::Util qw(refaddr);
 
 our $VERSION = '0.20';
 
