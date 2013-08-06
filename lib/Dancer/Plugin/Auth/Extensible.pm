@@ -15,7 +15,7 @@ my $loginpage = $settings->{login_page} || '/login';
 my $logoutpage = $settings->{logout_page} || '/logout';
 my $deniedpage = $settings->{denied_page} || '/login/denied';
 
-
+if(!$settings->{no_api_change_warning}) {
 Dancer::Logger::warning(<<CHANGEWARNING);
 
 ***************************************************************************
@@ -29,6 +29,7 @@ Dancer::Logger::warning(<<CHANGEWARNING);
 ***************************************************************************
 
 CHANGEWARNING
+}
 
 =head1 NAME
 
@@ -216,7 +217,7 @@ sub require_login {
         if (!$user) {
             execute_hook('login_required', $coderef);
             # TODO: see if any code executed by that hook set up a response
-            return redirect uri_for($loginpage, { return_url => request->path });
+            return redirect uri_for($loginpage, { return_url => request->request_uri });
         }
         return $coderef->();
     };
@@ -291,7 +292,7 @@ sub _build_wrapper {
         if (!$user) {
             execute_hook('login_required', $coderef);
             # TODO: see if any code executed by that hook set up a response
-            return redirect uri_for($loginpage, { return_url => request->path });
+            return redirect uri_for($loginpage, { return_url => request->request_uri });
         }
 
         my $role_match;
@@ -320,7 +321,7 @@ sub _build_wrapper {
 
         execute_hook('permission_denied', $coderef);
         # TODO: see if any code executed by that hook set up a response
-        return redirect uri_for($deniedpage, { return_url => request->path });
+        return redirect uri_for($deniedpage, { return_url => request->request_uri });
     };
 }
 

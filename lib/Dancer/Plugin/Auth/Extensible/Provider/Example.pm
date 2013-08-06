@@ -77,6 +77,8 @@ sub get_user_details {
 
 Given a username, return a list of roles that user has.
 
+=back
+
 =cut
 
 sub get_user_roles {
