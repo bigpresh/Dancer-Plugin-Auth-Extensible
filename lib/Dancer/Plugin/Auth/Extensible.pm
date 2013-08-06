@@ -644,9 +644,11 @@ Configurable login/logout URLs added by Rene (hertell)
 
 Regex support for require_role by chenryn
 
+Support for user_roles looking in other realms by Colin Ewen (casao)
+
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2012 David Precious.
+Copyright 2012-13 David Precious.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published
