@@ -27,6 +27,17 @@ get '/roles' => require_login sub {
     return join ',', sort @{ user_roles() };
 };
 
+get '/roles/:user' => require_login sub {
+    my $user = param 'user';
+    return join ',', sort @{ user_roles($user) };
+};
+
+get '/roles/:user/:realm' => require_login sub {
+    my $user = param 'user';
+    my $realm = param 'realm';
+    return join ',', sort @{ user_roles($user, $realm) };
+};
+
 get '/realm' => require_login sub {
     return session->{logged_in_user_realm};
 };

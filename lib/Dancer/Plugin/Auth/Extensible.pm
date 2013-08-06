@@ -392,10 +392,12 @@ Returns a list or arrayref depending on context.
 =cut
 
 sub user_roles {
-    my ($username) = @_;
+    my ($username, $realm) = @_;
     $username = session 'logged_in_user' unless defined $username;
 
-    my $roles = auth_provider()->get_user_roles($username);
+    my $search_realm = ($realm ? $realm : '');
+
+    my $roles = auth_provider($search_realm)->get_user_roles($username);
     return unless defined $roles;
     return wantarray ? @$roles : $roles;
 }
@@ -484,6 +486,8 @@ management within your application.
 my %realm_provider;
 sub auth_provider {
     my $realm = shift;
+
+    Dancer::Logger::warning($realm);
 
     # If no realm was provided, but we have a logged in user, use their realm:
     if (!$realm && session->{logged_in_user}) {
