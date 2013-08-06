@@ -1,0 +1,14 @@
+session: simple
+plugins:
+    Auth::Extensible:
+        realms:
+            ldap:
+                provider: LDAP
+                server: 127.0.0.1:3333
+                basedn: dc=ofosos,dc=org
+                authdn: cn=Administrator
+                password: blafasel
+                usergroup: cn=users,dc=ofosos,dc=org
+                roles: Jever,Warsteiner,Budvar
+logger: console
+show_errors: 1
