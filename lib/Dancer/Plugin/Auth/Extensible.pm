@@ -15,7 +15,7 @@ my $loginpage = $settings->{login_page} || '/login';
 my $logoutpage = $settings->{logout_page} || '/logout';
 my $deniedpage = $settings->{denied_page} || '/login/denied';
 
-
+if(!$settings->{no_api_change_warning}) {
 Dancer::Logger::warning(<<CHANGEWARNING);
 
 ***************************************************************************
@@ -29,6 +29,7 @@ Dancer::Logger::warning(<<CHANGEWARNING);
 ***************************************************************************
 
 CHANGEWARNING
+}
 
 =head1 NAME
 
