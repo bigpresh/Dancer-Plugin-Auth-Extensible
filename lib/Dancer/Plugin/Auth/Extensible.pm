@@ -487,8 +487,6 @@ my %realm_provider;
 sub auth_provider {
     my $realm = shift;
 
-    Dancer::Logger::warning($realm);
-
     # If no realm was provided, but we have a logged in user, use their realm:
     if (!$realm && session->{logged_in_user}) {
         $realm = session->{logged_in_user_realm};
