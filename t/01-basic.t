@@ -62,6 +62,8 @@ response_content_is [ GET => '/name' ], 'Hello, David Precious',
 response_content_is [ GET => '/roles' ], 'BeerDrinker,Motorcyclist',
     'Correct roles for logged in user';
 
+response_content_is [ GET => '/roles/bob'], 'CiderDrinker', 'Correct roles for other user in current realm';
+
 
 # Check we can request something which requires a role we have....
 response_status_is [ GET => '/beer' ], 200,
@@ -120,6 +122,8 @@ response_status_is [ GET => '/loggedin' ], 200,
 # And that the realm we authenticated against is what we expect
 response_content_is [ GET => '/realm' ], 'config2',
     'Authenticated against expected realm';
+
+response_content_is [ GET => '/roles/bob/config1'], 'CiderDrinker', 'Correct roles for other user in current realm';
 
 # Now, log out again
 response_status_is [
