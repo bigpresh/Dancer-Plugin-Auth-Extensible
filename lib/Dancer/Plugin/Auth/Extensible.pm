@@ -647,6 +647,8 @@ Regex support for require_role by chenryn
 
 Support for user_roles looking in other realms by Colin Ewen (casao)
 
+LDAP provider added by Mark Meyer (ofosos)
+
 =head1 LICENSE AND COPYRIGHT
 
 Copyright 2012-13 David Precious.
