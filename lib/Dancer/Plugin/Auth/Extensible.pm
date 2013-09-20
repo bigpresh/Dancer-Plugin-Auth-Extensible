@@ -12,8 +12,10 @@ our $VERSION = '0.20';
 my $settings = plugin_setting;
 
 my $loginpage = $settings->{login_page} || '/login';
+my $userhomepage = $settings->{user_home_page} || '/';
 my $logoutpage = $settings->{logout_page} || '/logout';
 my $deniedpage = $settings->{denied_page} || '/login/denied';
+my $exitpage = $settings->{exit_page};
 
 
 Dancer::Logger::warning(<<CHANGEWARNING);
@@ -190,7 +192,8 @@ and should do at least the following:
         session->destroy;
     };
     
-
+If you want to use the default C<post '/login'> and C<any '/logout'> routes
+you can configure them. See below.
 
 =head2 Keywords
 
@@ -461,6 +464,10 @@ In your application's configuation file:
         Auth::Extensible:
             # Set to 1 if you want to disable the use of roles (0 is default)
             disable_roles: 0
+            # After /login: If no return_url is given: land here ('/' is default)
+            user_home_page: '/user'
+            # After /logout: If no return_url is given: land here (no default)
+            exit_page: '/'
             
             # List each authentication realm, with the provider to use and the
             # provider-specific settings (see the documentation for the provider
@@ -559,7 +566,7 @@ post $loginpage => sub {
     if ($success) {
         session logged_in_user => params->{username};
         session logged_in_user_realm => $realm;
-        redirect params->{return_url} || '/';
+        redirect params->{return_url} || $userhomepage;
     } else {
         vars->{login_failed}++;
         forward $loginpage, { login_failed => 1 }, { method => 'GET' };
@@ -571,6 +578,8 @@ any ['get','post'] => $logoutpage => sub {
     session->destroy;
     if (params->{return_url}) {
         redirect params->{return_url};
+    } elsif ($exitpage) {
+        redirect $exitpage;
     } else {
         # TODO: perhaps make this more configurable, perhaps by attempting to
         # render a template first.
