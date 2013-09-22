@@ -301,7 +301,7 @@ sub _build_wrapper {
         my $role_match;
         if ($mode eq 'single') {
             for (user_roles()) {
-                $role_match++ and last if $_ ~~ $require_role;
+                $role_match++ and last if $_ eq $require_role;
             }
         } elsif ($mode eq 'any') {
             my %role_ok = map { $_ => 1 } @role_list;
