@@ -300,11 +300,8 @@ sub _build_wrapper {
 
         my $role_match;
         if ($mode eq 'single') {
-            if (ref $require_role) {
-                carp "Expected single scalar route name, but got a reference";
-            }
             for (user_roles()) {
-                $role_match++ and last if $_ eq $require_role;
+                $role_match++ and last if _smart_match($_, $require_role);
             }
         } elsif ($mode eq 'any') {
             my %role_ok = map { $_ => 1 } @role_list;
@@ -632,6 +629,24 @@ $login_fail_message
 </form>
 PAGE
 }
+
+# Replacement for much maligned and misunderstood smartmatch operator
+sub _smart_match {
+    my ($got, $want) = @_;
+    if (!ref $want) {
+        return $got eq $want;
+    } elsif (ref $want eq 'Regexp') {
+        return $got =~ $want;
+    } elsif (ref $want eq 'ARRAY') {
+        return grep { $_ eq $got } @$want;
+    } else {
+        carp "Don't know how to match against a " . ref $want;
+    }
+}
+
+
+
+
 =head1 AUTHOR
 
 David Precious, C<< <davidp at preshweb.co.uk> >>
