@@ -124,6 +124,31 @@ CONTROLLING ACCESS TO ROUTES
     page; again, you can disable this by setting `no_default_pages' and
     creating your own.
 
+    This would still leave the routes `post '/login'' and `any '/logout''
+    routes in place. To disable them too, set the option `no_login_handler'
+    to a true value. In this case, these routes should be defined by the
+    user, and should do at least the following:
+
+        post '/login' => sub {
+            my ($success, $realm) = authenticate_user(
+                params->{username}, params->{password}
+            );
+            if ($success) {
+                session logged_in_user => params->{username};
+                session logged_in_user_realm => $realm;
+                # other code here
+            } else {
+                # authentication failed
+            }
+        };
+    
+        any '/logout' => sub {
+            session->destroy;
+        };
+    
+    If you want to use the default `post '/login'' and `any '/logout''
+    routes you can configure them. See below.
+
   Keywords
     require_login
         Used to wrap a route which requires a user to be logged in order to
@@ -211,6 +236,10 @@ CONTROLLING ACCESS TO ROUTES
             Auth::Extensible:
                 # Set to 1 if you want to disable the use of roles (0 is default)
                 disable_roles: 0
+                # After /login: If no return_url is given: land here ('/' is default)
+                user_home_page: '/user'
+                # After /logout: If no return_url is given: land here (no default)
+                exit_page: '/'
             
                 # List each authentication realm, with the provider to use and the
                 # provider-specific settings (see the documentation for the provider
@@ -243,8 +272,15 @@ ACKNOWLEDGEMENTS
 
     Regex support for require_role by chenryn
 
+    Support for user_roles looking in other realms by Colin Ewen (casao)
+
+    LDAP provider added by Mark Meyer (ofosos)
+
+    Config options for default login/logout handlers by Henk van Oers
+    (hvoers)
+
 LICENSE AND COPYRIGHT
-    Copyright 2012 David Precious.
+    Copyright 2012-13 David Precious.
 
     This program is free software; you can redistribute it and/or modify it
     under the terms of either: the GNU General Public License as published
