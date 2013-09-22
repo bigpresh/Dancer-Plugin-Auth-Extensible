@@ -16,7 +16,7 @@ Also provides secure password matching which automatically handles crypted
 passwords via Crypt::SaltedHash.
 
 Finally, provides the methods which providers must override with their
-implementation, which will die if they are not overriden.
+implementation, which will die if they are not overridden.
 
 =cut
 
