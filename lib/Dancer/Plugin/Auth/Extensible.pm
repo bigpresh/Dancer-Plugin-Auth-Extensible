@@ -300,6 +300,9 @@ sub _build_wrapper {
 
         my $role_match;
         if ($mode eq 'single') {
+            if (ref $require_role) {
+                carp "Expected single scalar route name, but got a reference";
+            }
             for (user_roles()) {
                 $role_match++ and last if $_ eq $require_role;
             }
