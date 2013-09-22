@@ -16,6 +16,10 @@ BEGIN {
     }
 }
 
+diag sprintf "Testing DPAE version %s under Dancer %s",
+    $Dancer::Plugin::Auth::Extensible::VERSION,
+    $Dancer::VERSION;
+
 # First, without being logged in, check we can access the index page, but not
 # stuff we need to be logged in for:
 
