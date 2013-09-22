@@ -658,7 +658,10 @@ Support for user_roles looking in other realms by Colin Ewen (casao)
 
 LDAP provider added by Mark Meyer (ofosos)
 
+Config options for default login/logout handlers by Henk van Oers (hvoers)
+
 =head1 LICENSE AND COPYRIGHT
+
 
 Copyright 2012-13 David Precious.
 
