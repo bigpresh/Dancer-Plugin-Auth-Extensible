@@ -5,7 +5,7 @@ use Crypt::SaltedHash;
 
 =head1 NAME
 
-Dancer::Plugin::Auth::Extensible::Provider::Base
+Dancer::Plugin::Auth::Extensible::Provider::Base - base class for authentication providers
 
 =head1 DESCRIPTION
 
