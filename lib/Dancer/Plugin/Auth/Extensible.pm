@@ -319,6 +319,8 @@ sub _build_wrapper {
         }
 
         if ($role_match) {
+            # We're happy with their roles, so go head and execute the route
+            # handler coderef.
             return $coderef->();
         }
 
