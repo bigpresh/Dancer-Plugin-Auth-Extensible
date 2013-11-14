@@ -173,6 +173,9 @@ sub get_user_roles {
     return \@roles;
 }
 
+=back
+
+=cut
 
 
 1;
