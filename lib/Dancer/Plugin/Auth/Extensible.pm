@@ -564,6 +564,10 @@ sub _try_realms {
 # Set up routes to serve default pages, if desired
 if ( !$settings->{no_default_pages} ) {
     get $loginpage => sub {
+        if(logged_in_user()) {
+            redirect params->{return_url} || $userhomepage;
+        }
+
         status 401;
         my $_default_login_page =
           $settings->{login_page_handler} || '_default_login_page';
@@ -586,6 +590,10 @@ if (!$settings->{no_login_handler}) {
 
 # Handle logging in...
 post $loginpage => sub {
+    if(logged_in_user()) {
+        redirect params->{return_url} || $userhomepage;
+    }
+
     my ($success, $realm) = authenticate_user(
         params->{username}, params->{password}
     );
