@@ -38,9 +38,42 @@ and reading the directory (e.g. 'cn=Administrator,cn=users,dc=ofosos,dc=org').
 
 The password of above named user
 
-=item * usergroup
+=item * userdn
 
-The group where users are to be found (e.g. 'cn=users,dc=ofosos,dc=org')
+The DN where users are to be found (e.g. 'cn=users,dc=ofosos,dc=org' or 
+'ou=People,dc=male')
+
+=item * userrdn
+
+user RDN ( Relative Distinguished Name ) usually a username prefix 
+like uid or cn ...  )
+for example one can bind to ldap using uid=username,ou=people,dc=male
+or cn=Administrator,cn=users,dc=ofosos,dc=org 
+
+=item * grouprdn
+
+group RDN prefix for group DN (e.g. 'ou=webgroup,dc=male' 
+or 'cn=PosixGroup,dc=male')
+
+=item * userdetails
+
+userdetails: cn dn name userPrincipalName sAMAcountName
+or 
+userdetails: cn dn uid
+for a different configuration case 
+
+=item * objectClass
+
+objectClass used in get_user_details sub in filter can vary alot depending 
+on the LDAP tree structure
+
+=item * rolefilter
+
+depends on objectClass, for example in case of PosixGroup rolefilter 
+is 'memberUid'
+in case of objectClass = groupOfUniqueNames
+reolefilter is 'uniqueMember=uid' or 'uniqueMember=cn'
+and so on.
 
 =item * roles
 
@@ -69,7 +102,7 @@ sub authenticate_user {
     my $ldap = Net::LDAP->new($settings->{server}) or die "$!";
 
     my $mesg = $ldap->bind(
-        "cn=" . $username . "," . $settings->{usergroup},
+        $settings->{userrdn} . "=" . $username . "," . $settings->{userdn},
         password => $password);
 
     $ldap->unbind;
@@ -91,25 +124,30 @@ sub get_user_details {
     my $settings = $self->realm_settings;
 
     my $ldap = Net::LDAP->new($settings->{server}) or die "$@";
+	
+#try anonymous bind before    
+    my $mesg = $ldap->bind;
 
-    my $mesg = $ldap->bind(
-        $settings->{authdn},
-        password => $settings->{password});
+    if ($settings->{authdn}) {
+        my $mesg = $ldap->bind(
+            $settings->{authdn},
+            password => $settings->{password});
+    }
 
     if ($mesg->is_error) {
         warning($mesg->error);
-    }
+	}
 
     $mesg = $ldap->search(
         base => $settings->{basedn},
-        filter => "(&(objectClass=user)(sAMAccountName=" . $username . "))",
+        filter => "(&(objectClass=" . $settings->{objectClass} . ")(". $settings->{userrdn} ."=" . $username . "))",
         );
 
     if ($mesg->is_error) {
         warning($mesg->error);
     }
 
-    my @extract = qw(cn dn name userPrincipalName sAMAccountName);
+    my @extract =  (split(/\s/,$settings->{userdetails}));
     my %props = ();
 
     if ($mesg->entries > 0) {
@@ -139,9 +177,13 @@ sub get_user_roles {
 
     my $ldap = Net::LDAP->new($settings->{server}) or die "$@";
 
-    my $mesg = $ldap->bind(
-        $settings->{authdn},
-        password => $settings->{password});
+    my $mesg = $ldap->bind;
+
+    if ($settings->{authdn}) {
+	    my $mesg = $ldap->bind(
+	        $settings->{authdn},
+	        password => $settings->{password});
+    }
 
     if ($mesg->is_error) {
         warning($mesg->error);
@@ -153,7 +195,7 @@ sub get_user_roles {
     foreach my $role (@relevantroles) {
         $mesg = $ldap->search(
             base => $settings->{basedn},
-            filter => "(&(objectClass=user)(sAMAccountName=" . $username . ")(memberof=cn=". $role . "," . $settings->{usergroup} . "))",
+            filter => "(&(|(" . $settings->{rolefilter} . "=" . $username->{uid} . ")(" . $settings->{rolefilter} . "=" . $username->{uid} . "," . $settings->{userdn} . "))(" . $settings->{grouprdn} . "=" . $role . "))",
             );
         if ($mesg->is_error) {
             warning($mesg->error);
