@@ -550,11 +550,29 @@ if (!$settings->{no_login_handler}) {
 
 # Handle logging in...
 post $loginpage => sub {
+
+    # For security, ensure the username and password are straight scalars; if
+    # the app is using a serializer and we were sent a blob of JSON, they could
+    # have come from that JSON, and thus could be hashrefs (JSON SQL injection)
+    # - for database providers, feeding a carefully crafted hashref to the SQL
+    # builder could result in different SQL to what we'd expect.
+    # For instance, if we pass password => params->{password} to an SQL builder,
+    # we'd expect the query to include e.g. "WHERE password = '...'" (likely
+    # with paremeterisation) - but if params->{password} was something
+    # different, e.g. { 'like' => '%' }, we might end up with some SQL like
+    # WHERE password LIKE '%' instead - which would not be a Good Thing.
+    my ($username, $password) = @{ params() }{qw(username password)};
+    for ($username, $password) {
+        if (ref $_) {
+            # TODO: handle more cleanly
+            die "Attempt to pass a reference as username/password blocked";
+        }
+    }
     my ($success, $realm) = authenticate_user(
-        params->{username}, params->{password}
+        $username, $password
     );
     if ($success) {
-        session logged_in_user => params->{username};
+        session logged_in_user => $username;
         session logged_in_user_realm => $realm;
         redirect params->{return_url} || $userhomepage;
     } else {
