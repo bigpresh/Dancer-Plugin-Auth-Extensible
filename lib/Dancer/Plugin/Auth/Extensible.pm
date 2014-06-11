@@ -146,6 +146,22 @@ redirected to the access denied URL.
 By default, the plugin adds a route to present a simple login form at that URL.
 If you would rather add your own, set the C<no_default_pages> setting to a true
 value, and define your own route which responds to C</login> with a login page.
+Alternatively you can let DPAE add the routes and handle the status codes, etc.
+and simply define the setting C<login_page_handler> and/or
+C<permission_denied_page_handler> with the name of a subroutine to be called to
+handle the route. Note that it must be a fully qualified sub. E.g.
+
+    plugins:
+      Auth::Extensible:
+        login_page_handler: 'My::App:login_page_handler'
+        permission_denied_page_handler: 'My::App:permission_denied_page_handler'
+
+Then in your code you might simply use a template:
+
+    sub permission_denied_page_handler {
+        template 'account/login';
+    }
+
 
 If the user is logged in, but tries to access a route which requires a specific
 role they don't have, they will be redirected to the "permission denied" page
@@ -536,14 +552,25 @@ sub _try_realms {
 }
 
 # Set up routes to serve default pages, if desired
-if (!$settings->{no_default_pages}) {
+if ( !$settings->{no_default_pages} ) {
     get $loginpage => sub {
+        if(logged_in_user()) {
+            redirect params->{return_url} || $userhomepage;
+        }
+
         status 401;
-        return _default_login_page();
+        my $_default_login_page =
+          $settings->{login_page_handler} || '_default_login_page';
+        no strict 'refs';
+        return &{$_default_login_page}();
     };
     get $deniedpage => sub {
         status 403;
-        return _default_permission_denied_page();
+        my $_default_permission_denied_page =
+          $settings->{permission_denied_page_handler}
+          || '_default_permission_denied_page';
+        no strict 'refs';
+        return &{$_default_permission_denied_page}();
     };
 }
 
@@ -553,7 +580,6 @@ if (!$settings->{no_login_handler}) {
 
 # Handle logging in...
 post $loginpage => sub {
-
     # For security, ensure the username and password are straight scalars; if
     # the app is using a serializer and we were sent a blob of JSON, they could
     # have come from that JSON, and thus could be hashrefs (JSON SQL injection)
@@ -571,6 +597,11 @@ post $loginpage => sub {
             die "Attempt to pass a reference as username/password blocked";
         }
     }
+
+    if(logged_in_user()) {
+        redirect params->{return_url} || $userhomepage;
+    }
+
     my ($success, $realm) = authenticate_user(
         $username, $password
     );
