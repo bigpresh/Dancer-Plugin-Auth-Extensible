@@ -501,8 +501,11 @@ sub auth_provider {
     if ($provider_class !~ /::/) {
         $provider_class = __PACKAGE__ . "::Provider::$provider_class";
     }
-    Dancer::ModuleLoader->load($provider_class)
-        or die "Cannot load provider $provider_class";
+    my ($ok, $error) = Dancer::ModuleLoader->load($provider_class);
+
+    if (! $ok) {
+        die "Cannot load provider $provider_class: $error";
+    }
 
     return $realm_provider{$realm} = $provider_class->new($realm_settings);
 }
