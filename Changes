@@ -1,5 +1,17 @@
 Revision history for Dancer-Plugin-Auth-Extensible
 
+0.40    2014-06-11
+        [ ENHANCEMENTS ]
+        - Login handlers go straight to homepage if user was already logged in
+          (thanks to @colinmkeith, GH-32)
+        
+        [ SECURITY ]
+        - Ensure the username and password we got were straight scalars, to
+          avoid potential for "JSON SQL injection" if they came from a
+          deserialised JSON POST body, and contained a hashref that, if fed to
+          e.g. SQL::Abstract or such, would cause a different query to what we'd
+          expect.
+
 0.30    2013-11-14
         [ ENHANCEMENTS ]
         - Typo fix and whatis entry courtesy of Debian team
