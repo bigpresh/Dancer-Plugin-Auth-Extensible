@@ -110,7 +110,7 @@ Keywords are provided to check if a user is logged in / has appropriate roles.
 
 If the user is not logged in, they will be redirected to the login page URL to
 log in.  The default URL is C</login> - this may be changed with the
-C<login_url> option.
+C<login_page> option.
 
 =item require_role - require the user to have a specified role
 
