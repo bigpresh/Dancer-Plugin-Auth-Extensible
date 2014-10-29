@@ -11,6 +11,7 @@ WriteMakefile(
       ? ('LICENSE'=> 'perl')
       : ()),
     PL_FILES            => {},
+    EXE_FILES           => [ 'bin/generate-crypted-password' ],
     PREREQ_PM => {
         'Test::More' => 0,
         'Mock::Quick' => 0,
