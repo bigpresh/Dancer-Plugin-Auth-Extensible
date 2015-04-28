@@ -1,6 +1,8 @@
 package Dancer::Plugin::Auth::Extensible::Provider::Example;
 
 use strict;
+use warnings;
+
 use base "Dancer::Plugin::Auth::Extensible::Provider::Base";
 
 # A more sensible provider would be likely to get this information from e.g. a

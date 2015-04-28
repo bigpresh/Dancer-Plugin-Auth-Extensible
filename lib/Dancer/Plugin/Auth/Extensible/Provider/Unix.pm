@@ -1,6 +1,8 @@
 package Dancer::Plugin::Auth::Extensible::Provider::Unix;
 
 use strict;
+use warnings;
+
 use base 'Dancer::Plugin::Auth::Extensible::Provider::Base';
 use Authen::Simple::PAM;
 use Unix::Passwd::File;
