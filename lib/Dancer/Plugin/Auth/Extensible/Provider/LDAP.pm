@@ -1,6 +1,8 @@
 package Dancer::Plugin::Auth::Extensible::Provider::LDAP;
 
 use strict;
+use warnings;
+
 use base "Dancer::Plugin::Auth::Extensible::Provider::Base";
 use Net::LDAP;
 use Dancer qw(warning);

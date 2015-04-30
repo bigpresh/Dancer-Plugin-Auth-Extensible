@@ -1,6 +1,8 @@
 package Dancer::Plugin::Auth::Extensible::Provider::Config;
 
 use strict;
+use warnings;
+
 use base "Dancer::Plugin::Auth::Extensible::Provider::Base";
 
 =head1 NAME 

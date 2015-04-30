@@ -1,6 +1,8 @@
 package Dancer::Plugin::Auth::Extensible::Provider::Database;
 
 use strict;
+use warnings;
+
 use base 'Dancer::Plugin::Auth::Extensible::Provider::Base';
 use Dancer::Plugin::Database;
 use Dancer qw(:syntax);
