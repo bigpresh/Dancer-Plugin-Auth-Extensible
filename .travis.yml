@@ -7,7 +7,7 @@ perl:
     - "5.10"
 
 install:
-    - cpanm Dancer Mock::Quick Crypt::SaltedHash --quiet --notest
+    - cpanm Dancer Mock::Quick Crypt::SaltedHash YAML --quiet --notest
 
 script:
     - perl Makefile.PL
