@@ -12,10 +12,12 @@ DESCRIPTION
     users, etc).
 
     Designed to support multiple authentication realms and to be as
-    extensible as possible, and to make secure password handling easy (the
+    extensible as possible, and to make secure password handling easy. The
     base class for auth providers makes handling `RFC2307'-style hashed
     passwords really simple, so you have no excuse for storing plain-text
-    passwords).
+    passwords. A simple script to generate RFC2307-style hashed passwords is
+    included, or you can use Crypt::SaltedHash yourself to do so, or use the
+    `slappasswd' utility if you have it installed.
 
 SYNOPSIS
     Configure the plugin to use the authentication provider class you wish
@@ -79,7 +81,7 @@ CONTROLLING ACCESS TO ROUTES
 
         If the user is not logged in, they will be redirected to the login
         page URL to log in. The default URL is `/login' - this may be
-        changed with the `login_url' option.
+        changed with the `login_page' option.
 
     require_role - require the user to have a specified role
             get '/beer' => require_role BeerDrinker => sub { ... };
@@ -113,7 +115,22 @@ CONTROLLING ACCESS TO ROUTES
     By default, the plugin adds a route to present a simple login form at
     that URL. If you would rather add your own, set the `no_default_pages'
     setting to a true value, and define your own route which responds to
-    `/login' with a login page.
+    `/login' with a login page. Alternatively you can let DPAE add the
+    routes and handle the status codes, etc. and simply define the setting
+    `login_page_handler' and/or `permission_denied_page_handler' with the
+    name of a subroutine to be called to handle the route. Note that it must
+    be a fully qualified sub. E.g.
+
+        plugins:
+          Auth::Extensible:
+            login_page_handler: 'My::App:login_page_handler'
+            permission_denied_page_handler: 'My::App:permission_denied_page_handler'
+
+    Then in your code you might simply use a template:
+
+        sub permission_denied_page_handler {
+            template 'account/login';
+        }
 
     If the user is logged in, but tries to access a route which requires a
     specific role they don't have, they will be redirected to the
@@ -254,6 +271,9 @@ CONTROLLING ACCESS TO ROUTES
     about the currently logged in user. Please see Dancer::Session for
     information on how to configure session management within your
     application.
+
+AUTHOR
+    David Precious, `<davidp at preshweb.co.uk>'
 
 BUGS / FEATURE REQUESTS
     This is an early version; there may still be bugs present or features
