@@ -7,7 +7,7 @@ use Carp;
 use Dancer::Plugin;
 use Dancer qw(:syntax);
 
-our $VERSION = '0.30';
+our $VERSION = '0.31';
 
 my $settings = plugin_setting;
 
