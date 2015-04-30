@@ -1,9 +1,11 @@
 Revision history for Dancer-Plugin-Auth-Extensible
 
-0.40    2014-06-11
+0.40    2015-04-30
         [ ENHANCEMENTS ]
         - Login handlers go straight to homepage if user was already logged in
           (thanks to @colinmkeith, GH-32)
+        - Kwalitee improvements from Michael Gray (mjg17) as part of the awesome
+          pull request challenge (GH-43, GH-44, GH-45, GH-46)
         
         [ SECURITY ]
         - Ensure the username and password we got were straight scalars, to
