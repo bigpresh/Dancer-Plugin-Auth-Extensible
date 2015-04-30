@@ -20,14 +20,25 @@ WriteMakefile(
         'YAML'       => 0, # for config files (TODO: make optional?)
         
     },
+    MIN_PERL_VERSION    => 5.006001,
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Dancer-Plugin-Auth-Extensible-*' },
     META_MERGE => {
+        "meta-spec" => { version => 2 },
         resources => {
             repository => 'https://github.com/bigpresh/Dancer-Plugin-Auth-Extensible',
             bugtracker => 'https://github.com/bigpresh/Dancer-Plugin-Auth-Extensible/issues',
             homepage   => 'https://github.com/bigpresh/Dancer-Plugin-Auth-Extensible/',
         },
+        prereqs => {
+            runtime => {
+                recommends => {
+                    'Authen::Simple::PAM'      => 0,
+                    'Dancer::Plugin::Database' => 0,
+                    'Unix::Passwd::File'       => 0,
+                }
+            }
+        }
     },
 
 );
