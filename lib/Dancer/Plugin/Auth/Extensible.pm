@@ -7,7 +7,7 @@ use Carp;
 use Dancer::Plugin;
 use Dancer qw(:syntax);
 
-our $VERSION = '0.40';
+our $VERSION = '1.00';
 
 my $settings = plugin_setting;
 
@@ -715,14 +715,12 @@ Regex support for require_role by chenryn
 
 Support for user_roles looking in other realms by Colin Ewen (casao)
 
-LDAP provider added by Mark Meyer (ofosos)
-
 Config options for default login/logout handlers by Henk van Oers (hvoers)
 
 =head1 LICENSE AND COPYRIGHT
 
 
-Copyright 2012-13 David Precious.
+Copyright 2012-16 David Precious.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published

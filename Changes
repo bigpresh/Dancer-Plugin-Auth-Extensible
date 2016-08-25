@@ -1,5 +1,9 @@
 Revision history for Dancer-Plugin-Auth-Extensible
 
+1.00    2016-08-26
+        [ ENHANCEMENTS ]
+        - Cache logged in user and roles (GH-51)
+
 0.40    2015-04-30
         [ ENHANCEMENTS ]
         - Login handlers go straight to homepage if user was already logged in
