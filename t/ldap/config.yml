@@ -6,9 +6,14 @@ plugins:
                 provider: LDAP
                 server: 127.0.0.1:3333
                 basedn: dc=ofosos,dc=org
+                userdn: dc=ofosos,dc=org
+                userrdn: cn
+                userdetails: cn dn name userPrincipalName
+                objectClass: user
+                rolefilter: memberOf=cn
+                grouprdn: cn
                 authdn: cn=Administrator
                 password: blafasel
-                usergroup: cn=users,dc=ofosos,dc=org
                 roles: Jever,Warsteiner,Budvar
 logger: console
 show_errors: 1

@@ -31,7 +31,8 @@ my $entries1 = qclass(
 
 my $entry1 = qclass(
     -with_new => 1,
-    vals => {cn => "David Precious", dn => 'dprecious', name => 'David Precious', userPrincipalName => 'dprecious@foo.com', sAMAccountName => 'dprecious'},
+    vals => {cn => "David Precious", dn => 'dprecious', name => 'David Precious', userPrincipalName => 'dprecious@foo.com', sAMAcountName=>'dprecious'},
+#    vals => {dn => 'dprecious', name => 'David Precious', userPrincipalName => 'dprecious@foo.com', cn => 'dprecious'},
     get_value => sub { 
         my $self = shift;
         my $arg = shift;
@@ -57,10 +58,13 @@ my $mod = qclass(
     search => sub {
         my $self = shift;
         my %args = @_;
-        if (my ($uname) = $args{filter} =~ /^\(&\(objectClass=user\)\(sAMAccountName=([^,]+)\)$/) {
+#        if (my ($uname) = $args{filter} =~ /^\(&\(objectClass=user\)\(cn=([^,]+)\)$/) {
+		 if (my ($uname) = $args{filter} =~ /^\(&\(objectClass=user\)\(cn=([^,]+)\)$/) {
+			print "uname = $uname\n";
             return $detail->package->new;
-        } elsif (my ($name, $role) = $args{filter} =~ /^\(\&\(objectClass=user\)\(sAMAccountName=(.+)\)\(memberof=cn=([^,]+)/) {
-            if ($name eq "dprecious") {
+        } elsif (my ($name, $role) = $args{filter} =~ /^\(\&\(memberOf=cn=(.+)\)\("cn="(.+)\)/) {
+#		} elsif (my ($name, $role) = $args{filter} =~ /^\(\&\(objectClass=user\)\(sAMAccountName=(.+)\)\(memberof=cn=([^,]+)/) {
+        if ($name eq "dprecious") {
                 
                 diag("ROLE: " . $role);
                 if ($role eq "Jever" or $role eq "Budvar") {
