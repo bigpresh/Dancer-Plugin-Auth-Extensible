@@ -176,14 +176,14 @@ sub authenticate_user {
 
 # Return details about the user.  The user's row in the users table will be
 # fetched and all columns returned as a hashref.  The results are cached for
-# the lifetime of the route execution in vars->{dpae_logged_in_user} so
-# that repeated calls don't hammer the database with pointless queries
+# the lifetime of the route execution in vars so that repeated calls don't
+# hammer the database with pointless queries
 sub get_user_details {
     my ($self, $username) = @_;
     return unless defined $username;
 
-    if (defined vars->{dpae_logged_in_user}) {
-        return vars->{dpae_logged_in_user};
+    if (defined vars->{dpae_cached_user_details}{$username}) {
+        return vars->{dpae_cached_user_details}{$username};
     }
 
     my $settings = $self->realm_settings;
@@ -204,7 +204,7 @@ sub get_user_details {
         debug("No such user $username");
         return;
     } else {
-        vars->{dpae_logged_in_user} = $user;
+        vars->{dpae_cached_user_details}{$username} = $user;
         return $user;
     }
 }
@@ -213,8 +213,8 @@ sub get_user_roles {
     my ($self, $username) = @_;
 
     # If we've already cached the roles they have, just return that.
-    if (exists vars->{dpae_logged_in_user_roles}) {
-        return vars->{dpae_logged_in_user_roles};
+    if (exists vars->{dpae_cached_user_roles}{$username}) {
+        return vars->{dpae_cached_user_roles}{$username};
     }
 
     my $settings = $self->realm_settings;
@@ -280,7 +280,7 @@ QUERY
         push @roles, $role;
     }
 
-    vars->{dpae_logged_in_user_roles} = \@roles;
+    vars->{dpae_cached_user_roles}{$username} = \@roles;
     return \@roles;
 
     # If you read through this, I'm truly, truly sorry.  This mess was the price
