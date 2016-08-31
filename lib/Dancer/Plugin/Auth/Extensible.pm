@@ -416,7 +416,7 @@ sub user_roles {
 
     # First, if we cached the roles they have earlier in the route execution,
     # don't ask the provider again
-    if (my $cached = vars->{dpae_roles_cache}{$realm}{$username}) {
+    if (my $cached = vars->{dpae_roles_cache}{$search_realm}{$username}) {
         # Deref even if returning an arrayref, so calling code can't modify the
         # cached entry
         return wantarray ? @$cached : [ @$cached ];
