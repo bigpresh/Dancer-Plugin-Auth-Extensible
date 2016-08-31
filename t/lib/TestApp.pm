@@ -66,5 +66,15 @@ get qr{/regex/(.+)} => require_login sub {
     return "Matched";
 };
 
+get '/testcaching' => sub {
+    # See how many times the provider has been asked about a user
+    my $c1 = $Dancer::Plugin::Auth::Extensible::Provider::Example::users_access_count;
+    my $user = logged_in_user();
+    my $c2 = $Dancer::Plugin::Auth::Extensible::Provider::Example::users_access_count;
+    $user = logged_in_user();
+    my $c3 = $Dancer::Plugin::Auth::Extensible::Provider::Example::users_access_count;
+    return "$c1:$c2:$c3";
+};
+
 
 1;

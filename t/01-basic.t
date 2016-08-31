@@ -161,6 +161,10 @@ response_redirect_location_is(
     'Redirect after login to given return_url works',
 );
 
+# Test that we are in fact caching fetches of user details
+response_content_is [ GET => '/testcaching' ], "1:2:2",
+    "Repeated calls to logged_in_user are cached";
+
 
 
 

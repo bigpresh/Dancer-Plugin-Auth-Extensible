@@ -8,7 +8,9 @@ use base "Dancer::Plugin::Auth::Extensible::Provider::Base";
 # A more sensible provider would be likely to get this information from e.g. a
 # database (or LDAP, or...) rather than hardcoding it.  This, however, is an
 # example.
+our $users_access_count = 0;
 sub users {
+    $users_access_count++;
     return {
         'dave' => {
             name     => 'David Precious',
