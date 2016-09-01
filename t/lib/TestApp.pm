@@ -66,5 +66,28 @@ get qr{/regex/(.+)} => require_login sub {
     return "Matched";
 };
 
+get '/testcaching' => sub {
+
+    my $orig = Dancer::Plugin::Auth::Extensible::Provider::Config->can('get_user_details');
+
+    my $count = 0;
+    no warnings 'redefine';
+    local *Dancer::Plugin::Auth::Extensible::Provider::Config::get_user_details = sub {
+        $count++;
+        $orig->(@_);
+    };
+
+
+    # Call logged_in_user() multiple times, ensure we get the same result each
+    # time, and that it's cached
+    my @res;
+    push @res, $count;
+    push @res, logged_in_user()->{user};
+    push @res, $count;
+    push @res, logged_in_user()->{user};
+    push @res, $count;
+    return join ":", @res;
+};
+
 
 1;

@@ -345,8 +345,16 @@ The details you get back will depend upon the authentication provider in use.
 sub logged_in_user {
     if (my $user = session 'logged_in_user') {
         my $realm    = session 'logged_in_user_realm';
+
+        # First, if we've cached the details of this user earlier in this route
+        # execution in vars, just return it rather than ask the provider again
+        if (my $cached = vars->{dpae_user_cache}{$realm}{$user}) {
+            return $cached;
+        }
         my $provider = auth_provider($realm);
-        return $provider->get_user_details($user, $realm);
+        my $result = $provider->get_user_details($user, $realm);
+        vars->{dpae_user_cache}{$realm}{$user} = $result;
+        return $result;
     } else {
         return;
     }
@@ -406,8 +414,17 @@ sub user_roles {
 
     my $search_realm = ($realm ? $realm : '');
 
+    # First, if we cached the roles they have earlier in the route execution,
+    # don't ask the provider again
+    if (my $cached = vars->{dpae_roles_cache}{$search_realm}{$username}) {
+        # Deref even if returning an arrayref, so calling code can't modify the
+        # cached entry
+        return wantarray ? @$cached : [ @$cached ];
+    }
+
     my $roles = auth_provider($search_realm)->get_user_roles($username);
     return unless defined $roles;
+    vars->{dpae_roles_cache}{$search_realm}{$username} = $roles;
     return wantarray ? @$roles : $roles;
 }
 register user_roles => \&user_roles;
