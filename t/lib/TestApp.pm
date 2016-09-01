@@ -67,12 +67,23 @@ get qr{/regex/(.+)} => require_login sub {
 };
 
 get '/testcaching' => sub {
+
+    my $orig = Dancer::Plugin::Auth::Extensible::Provider::Config->can('get_user_details');
+
+    my $count = 0;
+    no warnings 'redefine';
+    local *Dancer::Plugin::Auth::Extensible::Provider::Config::get_user_details = sub {
+        $count++;
+        $orig->(@_);
+    };
+
+
     # See how many times the provider has been asked about a user
-    my $c1 = $Dancer::Plugin::Auth::Extensible::Provider::Example::users_access_count;
+    my $c1 = $count;
     my $user = logged_in_user();
-    my $c2 = $Dancer::Plugin::Auth::Extensible::Provider::Example::users_access_count;
+    my $c2 = $count;
     $user = logged_in_user();
-    my $c3 = $Dancer::Plugin::Auth::Extensible::Provider::Example::users_access_count;
+    my $c3 = $count;
     return "$c1:$c2:$c3";
 };
 
