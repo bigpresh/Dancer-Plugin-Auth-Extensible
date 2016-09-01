@@ -78,13 +78,15 @@ get '/testcaching' => sub {
     };
 
 
-    # See how many times the provider has been asked about a user
-    my $c1 = $count;
-    my $user = logged_in_user();
-    my $c2 = $count;
-    $user = logged_in_user();
-    my $c3 = $count;
-    return "$c1:$c2:$c3";
+    # Call logged_in_user() multiple times, ensure we get the same result each
+    # time, and that it's cached
+    my @res;
+    push @res, $count;
+    push @res, logged_in_user()->{user};
+    push @res, $count;
+    push @res, logged_in_user()->{user};
+    push @res, $count;
+    return join ":", @res;
 };
 
 
