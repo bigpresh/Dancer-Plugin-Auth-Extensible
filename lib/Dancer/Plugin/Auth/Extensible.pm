@@ -483,7 +483,7 @@ register authenticate_user => \&authenticate_user;
 
 =head2 SAMPLE CONFIGURATION
 
-In your application's configuation file:
+In your application's configuration file:
 
     session: simple
     plugins:
